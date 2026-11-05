@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laya RAG 판별기 — 주장 검증</title>
+<meta name="description" content="브라우저 안에서 끝나는 RAG 주장 검증: IndexedDB 벡터 저장소 위에서 MiniLM 검색을 수행하고, Laya 유형화된 의사결정 모델이 근거가 주장을 지지하는지 판별합니다. 어떤 데이터도 페이지 밖으로 나가지 않습니다.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="./coi.js"></script>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" class="logo-bg"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <h1>Laya RAG 판별기</h1>
+      <p>브라우저 안에서 근거를 검색하고, 유형화된 의사결정 모델로 주장을 판별합니다</p>
+    </div>
+  </div>
+  <div class="topright">
+    <nav class="nav" aria-label="페이지"><a href="./index.html" aria-current="page">주장 검증</a><a href="./rag-eval.html">평가</a><a href="./router.html">라우터</a></nav>
+    <div class="modelpill" id="modelPill" role="status"><span class="dot"></span><span id="modelPillText">모델이 로드되지 않았습니다</span></div>
+  </div>
+</header>
+
+<section class="card modelcard" id="modelCard">
+  <div class="modelrow">
+    <div class="field">
+      <label for="variant">판별 모델 빌드 (Laya)</label>
+      <select id="variant"><option>매니페스트를 읽는 중…</option></select>
+    </div>
+    <div class="field">
+      <label for="backend">백엔드</label>
+      <select id="backend">
+        <option value="auto">자동 (int4는 WebGPU, 아니면 WASM)</option>
+        <option value="wasm">WASM (CPU)</option>
+        <option value="webgpu">WebGPU (int4 빌드 전용)</option>
+      </select>
+    </div>
+    <button id="loadBtn" class="primary" disabled>모델 로드</button>
+  </div>
+  <div class="progress" id="progress" hidden><div id="progressBar"></div></div>
+  <p class="status" id="status">판별기: <a id="modelLink" target="_blank" rel="noopener"></a>. 검색기: <a id="embedLink" target="_blank" rel="noopener"></a><span id="embedState"></span>. 두 모델 모두 한 번만 내려받아 브라우저에 캐시됩니다. 로드되기 전에는 내장된 예시 주장에 대해 같은 모델로 기록해 둔 결과를 재생합니다.</p>
+  <div class="badges" id="badges"></div>
+</section>
+
+<div class="layout">
+  <aside class="side">
+    <section class="card">
+      <div class="field">
+        <label for="dataset">예시 주장</label>
+        <select id="dataset"></select>
+      </div>
+      <div class="examples" id="examples" aria-label="예시 주장"></div>
+      <div class="field">
+        <label for="claim">검증할 주장</label>
+        <textarea id="claim" rows="3" spellcheck="false" placeholder="AI 어시스턴트가 작성한 문장을 근거와 대조해 확인해 보세요"></textarea>
+      </div>
+      <div class="field">
+        <label id="sourceLbl">근거 검색 범위</label>
+        <div class="seg" role="radiogroup" aria-labelledby="sourceLbl">
+          <label><input type="radio" name="source" value="document" checked>문서 하나</label>
+          <label><input type="radio" name="source" value="corpus">전체 코퍼스</label>
+          <label><input type="radio" name="source" value="pasted">직접 붙여넣은 텍스트</label>
+        </div>
+      </div>
+      <div class="field" id="docField">
+        <label for="doc">문서</label>
+        <select id="doc"></select>
+      </div>
+      <div class="field" id="pasteField" hidden>
+        <label for="pasted">근거 텍스트 (메모리에서 청크로 나누어 임베딩하며, 저장되지 않습니다)</label>
+        <textarea id="pasted" rows="6" spellcheck="false" placeholder="출처 텍스트 몇 문단을 붙여넣어 보세요"></textarea>
+      </div>
+      <details>
+        <summary>검색 및 판별 설정</summary>
+        <div class="row3" style="margin-top:8px">
+          <div class="field"><label for="spc">청크당 문장 수</label><select id="spc"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+          <div class="field"><label for="k">Top-k</label><select id="k"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+          <div class="field"><label for="preset">판별 질문</label><select id="preset"></select></div>
+        </div>
+        <p class="hint" id="presetHint"></p>
+      </details>
+      <div class="field" style="margin-top:12px">
+        <label for="cutoff">p(지지됨) ≥ <b id="cutoffVal">0.50</b> 이면 "지지됨"으로 판정</label>
+        <input type="range" id="cutoff" min="0.05" max="0.95" step="0.01" value="0.5">
+      </div>
+      <div class="field">
+        <label for="thresh">자동으로 판정하기 위해 필요한 신뢰도: <b id="threshVal">0.10</b></label>
+        <input type="range" id="thresh" min="0" max="0.6" step="0.01" value="0.1">
+        <p class="hint">신뢰도는 지지 / 미지 지지 분할의 정규화 엔트로피를 1에서 뺀 값입니다. 이 모델의 확률값은 압축되어 있어 유용한 기준선은 낮은 편(0.05–0.3)입니다. 기준선 미만이면 판정이 보류되어 사람의 검토를 기다립니다. 두 슬라이더는 모델 호출 없이 현재 결과를 즉시 재분류합니다.</p>
+      </div>
+      <div class="btnrow">
+        <button id="verifyBtn" class="primary">주장 검증</button>
+      </div>
+      <p class="hint" id="runHint"></p>
+    </section>
+  </aside>
+
+  <main class="main">
+    <section class="card" id="resultCard">
+      <div class="placeholder" id="placeholder">예시 주장을 고르거나 직접 주장을 입력한 뒤 <b>주장 검증</b>을 누르세요.</div>
+      <div id="result" hidden>
+        <div id="outcome"></div>
+        <h3 class="step">1 · 검색된 근거 <span class="meta" id="retrMeta"></span></h3>
+        <ol class="passages" id="passages"></ol>
+        <details id="allWrap"><summary id="allSum">주장과 비교한 모든 구절</summary><p class="hint" id="allNote"></p><ol class="passages" id="allPassages"></ol></details>
+        <h3 class="step">2 · Laya의 유형화된 질문 <span class="meta" id="judgeMeta"></span></h3>
+        <div id="probs"></div>
+        <details><summary>질문과 상태 (페이지가 만드는 JSON)</summary><pre id="qjson" style="white-space:pre-wrap"></pre></details>
+        <details id="seqWrap"><summary>Laya가 읽는 정확한 텍스트 (토큰 시퀀스를 디코딩한 것)</summary><p class="hint" id="seqNote"></p><pre id="seqText" style="white-space:pre-wrap"></pre></details>
+        <h3 class="step" id="docHead">3 · 출처 문서 <span class="meta">검색된 구절이 강조됩니다<span id="evNote"></span></span></h3>
+        <div class="docview" id="docview"></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>동작 방식</h2>
+      <p class="hint" style="font-size:13.5px">모든 문서는 짧은 구절로 나뉘어 <b>all-MiniLM-L6-v2</b>로 임베딩되며, 벡터는 이 브라우저의 <b>IndexedDB</b>에 저장됩니다. 주장도 같은 방식으로 임베딩되고, 브루트포스 코사인 스캔으로 top-k 구절을 뽑습니다. 주장과 이 구절들이 Laya 의사결정 모델의 <b>유형화된 질문</b>의 <i>상태(state)</i>가 되고, 모델은 생성 텍스트 대신 각 선택지의 확률을 반환합니다. 이 확률이 판정을 결정하고, 그 신뢰도가 판정을 자동으로 실행할지 사람에게 보류할지 결정합니다. 모든 과정이 이 탭 안에서 실행됩니다: 서버도, API 키도 없습니다.</p>
+      <p class="hint"><a href="./rag-eval.html">평가</a> 페이지에서는 같은 파이프라인을 예시 주장 72개 전체에 실행하고 골드 라벨과 비교해 점수를 매깁니다.</p>
+    </section>
+  </main>
+</div>
+
+<footer class="foot">
+  Laya RAG Judge · Apache-2.0 · 판별기: <a href="https://huggingface.co/VishalMysore/layaForWebTrained" target="_blank" rel="noopener">Laya 유형화된 의사결정 (브라우저 빌드)</a>, <a href="https://huggingface.co/convaiinnovations/laya-typed-decisions" target="_blank" rel="noopener">ConvAI Innovations의 Laya</a>에서 파생. 검색기: <a href="https://huggingface.co/Xenova/all-MiniLM-L6-v2" target="_blank" rel="noopener">all-MiniLM-L6-v2</a>. 예시 문서들은 이 데모를 위해 작성된 가상의 내용입니다. <a href="./NOTICE.txt">라이선스 고지</a>.
+</footer>
+<script type="module" src="./verify.js"></script>
+</body>
+</html>

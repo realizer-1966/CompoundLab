@@ -1,0 +1,2123 @@
+{
+ "model": {
+  "variant": "q8e8",
+  "judge": "convaiinnovations/laya-multilingual",
+  "embedder": "Xenova/paraphrase-multilingual-MiniLM-L12-v2"
+ },
+ "fingerprint": "9f4e769e",
+ "createdAt": "2026-11-05T03:50:00.000Z",
+ "records": [
+  {
+   "id": "q-enc-1",
+   "routeProbs": {
+    "encyclopedia": 0.0082,
+    "news": 0.0039,
+    "policy": 0.0023,
+    "none": 0.9855
+   },
+   "routerMs": 3185,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.9364,
+     "checkMs": 6068,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 0,
+       "score": 0.511,
+       "cosine": 0.511,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 1,
+       "score": 0.2976,
+       "cosine": 0.2976,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 4,
+       "score": 0.2698,
+       "cosine": 0.2698,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.8365,
+     "checkMs": 4988,
+     "passages": [
+      {
+       "docId": "news-cup",
+       "chunk": 2,
+       "score": 0.2827,
+       "cosine": 0.2827,
+       "keyword": null
+      },
+      {
+       "docId": "news-sleep",
+       "chunk": 2,
+       "score": 0.2446,
+       "cosine": 0.2446,
+       "keyword": null
+      },
+      {
+       "docId": "news-sleep",
+       "chunk": 1,
+       "score": 0.2366,
+       "cosine": 0.2366,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-enc-2",
+   "routeProbs": {
+    "encyclopedia": 0.1208,
+    "news": 0.001,
+    "policy": 0.0029,
+    "none": 0.8753
+   },
+   "routerMs": 1541,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.0671,
+     "checkMs": 3805,
+     "passages": [
+      {
+       "docId": "enc-railway",
+       "chunk": 4,
+       "score": 0.6162,
+       "cosine": 0.6162,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 0,
+       "score": 0.539,
+       "cosine": 0.539,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 2,
+       "score": 0.5356,
+       "cosine": 0.5356,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.172,
+     "checkMs": 3266,
+     "passages": [
+      {
+       "docId": "pol-leave",
+       "chunk": 2,
+       "score": 0.6,
+       "cosine": 0.2388,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-leave",
+       "chunk": 1,
+       "score": 0.4527,
+       "cosine": 0.1527,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 1,
+       "score": 0.4299,
+       "cosine": 0.1394,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-enc-3",
+   "routeProbs": {
+    "encyclopedia": 0.0377,
+    "news": 0.0001,
+    "policy": 0,
+    "none": 0.9621
+   },
+   "routerMs": 1632,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.7687,
+     "checkMs": 2767,
+     "passages": [
+      {
+       "docId": "enc-castellan",
+       "chunk": 0,
+       "score": 0.6157,
+       "cosine": 0.6157,
+       "keyword": null
+      },
+      {
+       "docId": "enc-castellan",
+       "chunk": 1,
+       "score": 0.5052,
+       "cosine": 0.5052,
+       "keyword": null
+      },
+      {
+       "docId": "enc-castellan",
+       "chunk": 2,
+       "score": 0.3998,
+       "cosine": 0.3998,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.1383,
+     "checkMs": 3108,
+     "passages": [
+      {
+       "docId": "news-sleep",
+       "chunk": 2,
+       "score": 0.3753,
+       "cosine": 0.3753,
+       "keyword": null
+      },
+      {
+       "docId": "news-earnings",
+       "chunk": 1,
+       "score": 0.1396,
+       "cosine": 0.1396,
+       "keyword": null
+      },
+      {
+       "docId": "news-sleep",
+       "chunk": 1,
+       "score": 0.1124,
+       "cosine": 0.1124,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-enc-4",
+   "routeProbs": {
+    "encyclopedia": 0.8834,
+    "news": 0.0006,
+    "policy": 0.0012,
+    "none": 0.1147
+   },
+   "routerMs": 1368,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.1713,
+     "checkMs": 3737,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 0,
+       "score": 0.3773,
+       "cosine": 0.3773,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.2879,
+       "cosine": 0.2879,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.2627,
+       "cosine": 0.2627,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.217,
+     "checkMs": 3012,
+     "passages": [
+      {
+       "docId": "pol-insurance",
+       "chunk": 1,
+       "score": 0.6,
+       "cosine": 0.3061,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-library",
+       "chunk": 2,
+       "score": 0.552,
+       "cosine": 0.2701,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-returns",
+       "chunk": 1,
+       "score": 0.5394,
+       "cosine": 0.2605,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-enc-5",
+   "routeProbs": {
+    "encyclopedia": 0.3674,
+    "news": 0.004,
+    "policy": 0.004,
+    "none": 0.6247
+   },
+   "routerMs": 1505,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.4112,
+     "checkMs": 2987,
+     "passages": [
+      {
+       "docId": "enc-cheese",
+       "chunk": 3,
+       "score": 0.6475,
+       "cosine": 0.6475,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 0,
+       "score": 0.6204,
+       "cosine": 0.6204,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 2,
+       "score": 0.4937,
+       "cosine": 0.4937,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.0331,
+     "checkMs": 2775,
+     "passages": [
+      {
+       "docId": "news-earnings",
+       "chunk": 1,
+       "score": 0.1786,
+       "cosine": 0.1786,
+       "keyword": null
+      },
+      {
+       "docId": "news-earnings",
+       "chunk": 0,
+       "score": 0.0655,
+       "cosine": 0.0655,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 1,
+       "score": 0.0616,
+       "cosine": 0.0616,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-enc-6",
+   "routeProbs": {
+    "encyclopedia": 0.0037,
+    "news": 0,
+    "policy": 0,
+    "none": 0.9963
+   },
+   "routerMs": 1147,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.8634,
+     "checkMs": 2723,
+     "passages": [
+      {
+       "docId": "enc-lake",
+       "chunk": 0,
+       "score": 0.5645,
+       "cosine": 0.5645,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lake",
+       "chunk": 2,
+       "score": 0.2847,
+       "cosine": 0.2847,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 0,
+       "score": 0.2302,
+       "cosine": 0.2302,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.0044,
+     "checkMs": 2841,
+     "passages": [
+      {
+       "docId": "news-storm",
+       "chunk": 0,
+       "score": 0.2304,
+       "cosine": 0.2304,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 2,
+       "score": 0.2022,
+       "cosine": 0.2022,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 0,
+       "score": 0.1694,
+       "cosine": 0.1694,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-enc-7",
+   "routeProbs": {
+    "encyclopedia": 0.0098,
+    "news": 0.0001,
+    "policy": 0.0001,
+    "none": 0.99
+   },
+   "routerMs": 1344,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.8163,
+     "checkMs": 2274,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 1,
+       "score": 0.3627,
+       "cosine": 0.3627,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 0,
+       "score": 0.3486,
+       "cosine": 0.3486,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 4,
+       "score": 0.289,
+       "cosine": 0.289,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.5236,
+     "checkMs": 2835,
+     "passages": [
+      {
+       "docId": "news-cup",
+       "chunk": 2,
+       "score": 0.2425,
+       "cosine": 0.2425,
+       "keyword": null
+      },
+      {
+       "docId": "news-bikelanes",
+       "chunk": 0,
+       "score": 0.1795,
+       "cosine": 0.1795,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 1,
+       "score": 0.1763,
+       "cosine": 0.1763,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-enc-8",
+   "routeProbs": {
+    "encyclopedia": 0.6346,
+    "news": 0.0006,
+    "policy": 0.0005,
+    "none": 0.3643
+   },
+   "routerMs": 1331,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.3716,
+     "checkMs": 2469,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 0,
+       "score": 0.266,
+       "cosine": 0.266,
+       "keyword": null
+      },
+      {
+       "docId": "enc-castellan",
+       "chunk": 1,
+       "score": 0.2072,
+       "cosine": 0.2072,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 3,
+       "score": 0.2068,
+       "cosine": 0.2068,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.0506,
+     "checkMs": 2683,
+     "passages": [
+      {
+       "docId": "news-earnings",
+       "chunk": 1,
+       "score": 0.2263,
+       "cosine": 0.2263,
+       "keyword": null
+      },
+      {
+       "docId": "news-sleep",
+       "chunk": 2,
+       "score": 0.0744,
+       "cosine": 0.0744,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 2,
+       "score": 0.0702,
+       "cosine": 0.0702,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-1",
+   "routeProbs": {
+    "encyclopedia": 0.0173,
+    "news": 0.0104,
+    "policy": 0.0943,
+    "none": 0.8779
+   },
+   "routerMs": 1226,
+   "perRoute": {
+    "policy": {
+     "pAnswered": 0.3715,
+     "checkMs": 3841,
+     "passages": [
+      {
+       "docId": "pol-house",
+       "chunk": 0,
+       "score": 0.6,
+       "cosine": 0.5227,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-leave",
+       "chunk": 1,
+       "score": 0.3285,
+       "cosine": 0.2767,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-returns",
+       "chunk": 1,
+       "score": 0.278,
+       "cosine": 0.231,
+       "keyword": 0
+      }
+     ]
+    },
+    "encyclopedia": {
+     "pAnswered": 0.1566,
+     "checkMs": 2739,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.546,
+       "cosine": 0.546,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.2697,
+       "cosine": 0.2697,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.2068,
+       "cosine": 0.2068,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-2",
+   "routeProbs": {
+    "encyclopedia": 0.997,
+    "news": 0,
+    "policy": 0,
+    "none": 0.003
+   },
+   "routerMs": 1585,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.4036,
+     "checkMs": 3448,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.4583,
+       "cosine": 0.4583,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 2,
+       "score": 0.2684,
+       "cosine": 0.2684,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 2,
+       "score": 0.2408,
+       "cosine": 0.2408,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.4112,
+     "checkMs": 3072,
+     "passages": [
+      {
+       "docId": "news-bikelanes",
+       "chunk": 1,
+       "score": 0.4777,
+       "cosine": 0.4777,
+       "keyword": null
+      },
+      {
+       "docId": "news-earnings",
+       "chunk": 0,
+       "score": 0.3389,
+       "cosine": 0.3389,
+       "keyword": null
+      },
+      {
+       "docId": "news-earnings",
+       "chunk": 1,
+       "score": 0.305,
+       "cosine": 0.305,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-3",
+   "routeProbs": {
+    "encyclopedia": 0.019,
+    "news": 0.0185,
+    "policy": 0.0027,
+    "none": 0.9598
+   },
+   "routerMs": 1375,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.3704,
+     "checkMs": 2353,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 2,
+       "score": 0.2911,
+       "cosine": 0.2911,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 4,
+       "score": 0.2699,
+       "cosine": 0.2699,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.2,
+       "cosine": 0.2,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.1679,
+     "checkMs": 2945,
+     "passages": [
+      {
+       "docId": "news-storm",
+       "chunk": 2,
+       "score": 0.5195,
+       "cosine": 0.5195,
+       "keyword": null
+      },
+      {
+       "docId": "news-storm",
+       "chunk": 0,
+       "score": 0.4859,
+       "cosine": 0.4859,
+       "keyword": null
+      },
+      {
+       "docId": "news-storm",
+       "chunk": 1,
+       "score": 0.3421,
+       "cosine": 0.3421,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-4",
+   "routeProbs": {
+    "encyclopedia": 0.0024,
+    "news": 0.0002,
+    "policy": 0.0002,
+    "none": 0.9973
+   },
+   "routerMs": 1277,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.0547,
+     "checkMs": 2718,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.1594,
+       "cosine": 0.1594,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 4,
+       "score": 0.1589,
+       "cosine": 0.1589,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 2,
+       "score": 0.1561,
+       "cosine": 0.1561,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.6283,
+     "checkMs": 2839,
+     "passages": [
+      {
+       "docId": "news-sleep",
+       "chunk": 0,
+       "score": 0.8407,
+       "cosine": 0.8407,
+       "keyword": null
+      },
+      {
+       "docId": "news-sleep",
+       "chunk": 1,
+       "score": 0.6924,
+       "cosine": 0.6924,
+       "keyword": null
+      },
+      {
+       "docId": "news-sleep",
+       "chunk": 2,
+       "score": 0.2846,
+       "cosine": 0.2846,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-5",
+   "routeProbs": {
+    "encyclopedia": 0.0909,
+    "news": 0.0022,
+    "policy": 0.0018,
+    "none": 0.905
+   },
+   "routerMs": 1259,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.3755,
+     "checkMs": 2480,
+     "passages": [
+      {
+       "docId": "enc-cheese",
+       "chunk": 3,
+       "score": 0.1327,
+       "cosine": 0.1327,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lake",
+       "chunk": 2,
+       "score": 0.0857,
+       "cosine": 0.0857,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lake",
+       "chunk": 0,
+       "score": 0.0848,
+       "cosine": 0.0848,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.6558,
+     "checkMs": 2829,
+     "passages": [
+      {
+       "docId": "news-cup",
+       "chunk": 2,
+       "score": 0.5454,
+       "cosine": 0.5454,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 1,
+       "score": 0.5103,
+       "cosine": 0.5103,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 0,
+       "score": 0.4685,
+       "cosine": 0.4685,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-6",
+   "routeProbs": {
+    "encyclopedia": 0.0537,
+    "news": 0.0053,
+    "policy": 0.1871,
+    "none": 0.7539
+   },
+   "routerMs": 1344,
+   "perRoute": {
+    "policy": {
+     "pAnswered": 0.477,
+     "checkMs": 2747,
+     "passages": [
+      {
+       "docId": "pol-leave",
+       "chunk": 1,
+       "score": 0.6,
+       "cosine": 0.4464,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 2,
+       "score": 0.5286,
+       "cosine": 0.3712,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 0,
+       "score": 0.5218,
+       "cosine": 0.3641,
+       "keyword": 0
+      }
+     ]
+    },
+    "encyclopedia": {
+     "pAnswered": 0.5152,
+     "checkMs": 2643,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 4,
+       "score": 0.2606,
+       "cosine": 0.2606,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 3,
+       "score": 0.2272,
+       "cosine": 0.2272,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 4,
+       "score": 0.2018,
+       "cosine": 0.2018,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-7",
+   "routeProbs": {
+    "encyclopedia": 0.0315,
+    "news": 0.0045,
+    "policy": 0.0005,
+    "none": 0.9635
+   },
+   "routerMs": 1230,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.2827,
+     "checkMs": 2631,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.4235,
+       "cosine": 0.4235,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.28,
+       "cosine": 0.28,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.2655,
+       "cosine": 0.2655,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.2053,
+     "checkMs": 3013,
+     "passages": [
+      {
+       "docId": "news-bikelanes",
+       "chunk": 0,
+       "score": 0.552,
+       "cosine": 0.552,
+       "keyword": null
+      },
+      {
+       "docId": "news-bikelanes",
+       "chunk": 3,
+       "score": 0.4692,
+       "cosine": 0.4692,
+       "keyword": null
+      },
+      {
+       "docId": "news-bikelanes",
+       "chunk": 2,
+       "score": 0.4554,
+       "cosine": 0.4554,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-news-8",
+   "routeProbs": {
+    "encyclopedia": 0.3533,
+    "news": 0.0002,
+    "policy": 0.0002,
+    "none": 0.6463
+   },
+   "routerMs": 1364,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.6751,
+     "checkMs": 3047,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.3802,
+       "cosine": 0.3802,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 3,
+       "score": 0.2374,
+       "cosine": 0.2374,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lake",
+       "chunk": 0,
+       "score": 0.2366,
+       "cosine": 0.2366,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.1416,
+     "checkMs": 2750,
+     "passages": [
+      {
+       "docId": "news-storm",
+       "chunk": 0,
+       "score": 0.5033,
+       "cosine": 0.5033,
+       "keyword": null
+      },
+      {
+       "docId": "news-bikelanes",
+       "chunk": 1,
+       "score": 0.3812,
+       "cosine": 0.3812,
+       "keyword": null
+      },
+      {
+       "docId": "news-clinics",
+       "chunk": 2,
+       "score": 0.3534,
+       "cosine": 0.3534,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-1",
+   "routeProbs": {
+    "encyclopedia": 0.0744,
+    "news": 0.0011,
+    "policy": 0.0171,
+    "none": 0.9074
+   },
+   "routerMs": 1210,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.0295,
+     "checkMs": 2826,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.2403,
+       "cosine": 0.2403,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.2295,
+       "cosine": 0.2295,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lake",
+       "chunk": 3,
+       "score": 0.2118,
+       "cosine": 0.2118,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.3985,
+     "checkMs": 2581,
+     "passages": [
+      {
+       "docId": "pol-returns",
+       "chunk": 1,
+       "score": 0.6,
+       "cosine": 0.566,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-returns",
+       "chunk": 0,
+       "score": 0.5623,
+       "cosine": 0.534,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-returns",
+       "chunk": 2,
+       "score": 0.5147,
+       "cosine": 0.4937,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-2",
+   "routeProbs": {
+    "encyclopedia": 0.0001,
+    "news": 0.0001,
+    "policy": 0.9985,
+    "none": 0.0012
+   },
+   "routerMs": 1206,
+   "perRoute": {
+    "policy": {
+     "pAnswered": 0.1179,
+     "checkMs": 2434,
+     "passages": [
+      {
+       "docId": "pol-leave",
+       "chunk": 0,
+       "score": 0.6,
+       "cosine": 0.7303,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-leave",
+       "chunk": 1,
+       "score": 0.5653,
+       "cosine": 0.684,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-leave",
+       "chunk": 2,
+       "score": 0.5596,
+       "cosine": 0.6765,
+       "keyword": 0
+      }
+     ]
+    },
+    "encyclopedia": {
+     "pAnswered": 0.1591,
+     "checkMs": 2477,
+     "passages": [
+      {
+       "docId": "enc-railway",
+       "chunk": 4,
+       "score": 0.4187,
+       "cosine": 0.4187,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.3379,
+       "cosine": 0.3379,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.3065,
+       "cosine": 0.3065,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-3",
+   "routeProbs": {
+    "encyclopedia": 0.106,
+    "news": 0.0008,
+    "policy": 0.0838,
+    "none": 0.8095
+   },
+   "routerMs": 1251,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.2496,
+     "checkMs": 2982,
+     "passages": [
+      {
+       "docId": "enc-railway",
+       "chunk": 0,
+       "score": 0.2196,
+       "cosine": 0.2196,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 0,
+       "score": 0.1942,
+       "cosine": 0.1942,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lake",
+       "chunk": 3,
+       "score": 0.169,
+       "cosine": 0.169,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.7977,
+     "checkMs": 2966,
+     "passages": [
+      {
+       "docId": "pol-api",
+       "chunk": 0,
+       "score": 1,
+       "cosine": 0.5135,
+       "keyword": 1.9412
+      },
+      {
+       "docId": "pol-api",
+       "chunk": 1,
+       "score": 0.4867,
+       "cosine": 0.3972,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-api",
+       "chunk": 2,
+       "score": 0.4607,
+       "cosine": 0.3706,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-4",
+   "routeProbs": {
+    "encyclopedia": 0.2024,
+    "news": 0.0023,
+    "policy": 0.3192,
+    "none": 0.476
+   },
+   "routerMs": 1312,
+   "perRoute": {
+    "policy": {
+     "pAnswered": 0.3277,
+     "checkMs": 2661,
+     "passages": [
+      {
+       "docId": "pol-library",
+       "chunk": 0,
+       "score": 0.6,
+       "cosine": 0.6612,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-library",
+       "chunk": 1,
+       "score": 0.458,
+       "cosine": 0.4949,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-library",
+       "chunk": 2,
+       "score": 0.4252,
+       "cosine": 0.4565,
+       "keyword": 0
+      }
+     ]
+    },
+    "encyclopedia": {
+     "pAnswered": 0.2166,
+     "checkMs": 2894,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 3,
+       "score": 0.2027,
+       "cosine": 0.2027,
+       "keyword": null
+      },
+      {
+       "docId": "enc-castellan",
+       "chunk": 2,
+       "score": 0.1625,
+       "cosine": 0.1625,
+       "keyword": null
+      },
+      {
+       "docId": "enc-castellan",
+       "chunk": 1,
+       "score": 0.141,
+       "cosine": 0.141,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-5",
+   "routeProbs": {
+    "encyclopedia": 0.7828,
+    "news": 0.0006,
+    "policy": 0.0064,
+    "none": 0.2103
+   },
+   "routerMs": 1237,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.4452,
+     "checkMs": 2572,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.2157,
+       "cosine": 0.2157,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.2006,
+       "cosine": 0.2006,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.1748,
+       "cosine": 0.1748,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.6686,
+     "checkMs": 2851,
+     "passages": [
+      {
+       "docId": "pol-insurance",
+       "chunk": 2,
+       "score": 0.6,
+       "cosine": 0.6002,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-insurance",
+       "chunk": 0,
+       "score": 0.535,
+       "cosine": 0.5346,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-insurance",
+       "chunk": 1,
+       "score": 0.4602,
+       "cosine": 0.4593,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-6",
+   "routeProbs": {
+    "encyclopedia": 0.3945,
+    "news": 0.0024,
+    "policy": 0.0165,
+    "none": 0.5866
+   },
+   "routerMs": 1205,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.1307,
+     "checkMs": 2570,
+     "passages": [
+      {
+       "docId": "enc-cheese",
+       "chunk": 2,
+       "score": 0.2494,
+       "cosine": 0.2494,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 1,
+       "score": 0.184,
+       "cosine": 0.184,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 0,
+       "score": 0.1652,
+       "cosine": 0.1652,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.6667,
+     "checkMs": 2594,
+     "passages": [
+      {
+       "docId": "pol-house",
+       "chunk": 1,
+       "score": 0.6,
+       "cosine": 0.3852,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 0,
+       "score": 0.4197,
+       "cosine": 0.2408,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-insurance",
+       "chunk": 2,
+       "score": 0.2803,
+       "cosine": 0.1291,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-7",
+   "routeProbs": {
+    "encyclopedia": 0.5723,
+    "news": 0.0019,
+    "policy": 0.014,
+    "none": 0.4118
+   },
+   "routerMs": 1198,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.5286,
+     "checkMs": 2154,
+     "passages": [
+      {
+       "docId": "enc-cheese",
+       "chunk": 3,
+       "score": 0.2279,
+       "cosine": 0.2279,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 2,
+       "score": 0.226,
+       "cosine": 0.226,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 4,
+       "score": 0.2242,
+       "cosine": 0.2242,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.6213,
+     "checkMs": 3120,
+     "passages": [
+      {
+       "docId": "pol-returns",
+       "chunk": 2,
+       "score": 0.6,
+       "cosine": 0.5652,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-returns",
+       "chunk": 0,
+       "score": 0.5835,
+       "cosine": 0.55,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-returns",
+       "chunk": 1,
+       "score": 0.567,
+       "cosine": 0.5348,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-pol-8",
+   "routeProbs": {
+    "encyclopedia": 0.0083,
+    "news": 0.0004,
+    "policy": 0.9609,
+    "none": 0.0304
+   },
+   "routerMs": 1190,
+   "perRoute": {
+    "policy": {
+     "pAnswered": 0.6274,
+     "checkMs": 2529,
+     "passages": [
+      {
+       "docId": "pol-leave",
+       "chunk": 0,
+       "score": 0.6,
+       "cosine": 0.4398,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-insurance",
+       "chunk": 0,
+       "score": 0.5481,
+       "cosine": 0.4037,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-leave",
+       "chunk": 2,
+       "score": 0.5475,
+       "cosine": 0.4034,
+       "keyword": 0
+      }
+     ]
+    },
+    "encyclopedia": {
+     "pAnswered": 0.1167,
+     "checkMs": 2502,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 2,
+       "score": 0.2086,
+       "cosine": 0.2086,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.16,
+       "cosine": 0.16,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.1558,
+       "cosine": 0.1558,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-1",
+   "routeProbs": {
+    "encyclopedia": 0.0448,
+    "news": 0.0763,
+    "policy": 0.01,
+    "none": 0.8689
+   },
+   "routerMs": 1159,
+   "perRoute": {
+    "news": {
+     "pAnswered": 0.116,
+     "checkMs": 2979,
+     "passages": [
+      {
+       "docId": "news-storm",
+       "chunk": 0,
+       "score": 0.1178,
+       "cosine": 0.1178,
+       "keyword": null
+      },
+      {
+       "docId": "news-storm",
+       "chunk": 2,
+       "score": 0.1134,
+       "cosine": 0.1134,
+       "keyword": null
+      },
+      {
+       "docId": "news-storm",
+       "chunk": 1,
+       "score": 0.1058,
+       "cosine": 0.1058,
+       "keyword": null
+      }
+     ]
+    },
+    "encyclopedia": {
+     "pAnswered": 0.1199,
+     "checkMs": 2455,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.0788,
+       "cosine": 0.0788,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 4,
+       "score": 0.0736,
+       "cosine": 0.0736,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 0,
+       "score": 0.0381,
+       "cosine": 0.0381,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-2",
+   "routeProbs": {
+    "encyclopedia": 0.324,
+    "news": 0.0031,
+    "policy": 0.0006,
+    "none": 0.6722
+   },
+   "routerMs": 1163,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.0716,
+     "checkMs": 2501,
+     "passages": [
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.3701,
+       "cosine": 0.3701,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 1,
+       "score": 0.246,
+       "cosine": 0.246,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 2,
+       "score": 0.2286,
+       "cosine": 0.2286,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.062,
+     "checkMs": 2959,
+     "passages": [
+      {
+       "docId": "news-sleep",
+       "chunk": 0,
+       "score": 0.2982,
+       "cosine": 0.2982,
+       "keyword": null
+      },
+      {
+       "docId": "news-earnings",
+       "chunk": 0,
+       "score": 0.2781,
+       "cosine": 0.2781,
+       "keyword": null
+      },
+      {
+       "docId": "news-earnings",
+       "chunk": 2,
+       "score": 0.2291,
+       "cosine": 0.2291,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-3",
+   "routeProbs": {
+    "encyclopedia": 0.3803,
+    "news": 0.041,
+    "policy": 0.1873,
+    "none": 0.3914
+   },
+   "routerMs": 1164,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.238,
+     "checkMs": 2731,
+     "passages": [
+      {
+       "docId": "enc-lake",
+       "chunk": 3,
+       "score": 0.1886,
+       "cosine": 0.1886,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 4,
+       "score": 0.1361,
+       "cosine": 0.1361,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 0,
+       "score": 0.087,
+       "cosine": 0.087,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.2556,
+     "checkMs": 2711,
+     "passages": [
+      {
+       "docId": "pol-house",
+       "chunk": 2,
+       "score": 0.6,
+       "cosine": 0.1712,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-leave",
+       "chunk": 1,
+       "score": 0.5736,
+       "cosine": 0.1565,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 0,
+       "score": 0.4777,
+       "cosine": 0.1031,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-4",
+   "routeProbs": {
+    "encyclopedia": 0.0569,
+    "news": 0.0028,
+    "policy": 0.0033,
+    "none": 0.9371
+   },
+   "routerMs": 1162,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.6651,
+     "checkMs": 2513,
+     "passages": [
+      {
+       "docId": "enc-cheese",
+       "chunk": 0,
+       "score": 0.2401,
+       "cosine": 0.2401,
+       "keyword": null
+      },
+      {
+       "docId": "enc-railway",
+       "chunk": 1,
+       "score": 0.202,
+       "cosine": 0.202,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 1,
+       "score": 0.196,
+       "cosine": 0.196,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.5477,
+     "checkMs": 3202,
+     "passages": [
+      {
+       "docId": "pol-api",
+       "chunk": 2,
+       "score": 0.6,
+       "cosine": 0.2379,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 2,
+       "score": 0.4823,
+       "cosine": 0.1653,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-api",
+       "chunk": 0,
+       "score": 0.4434,
+       "cosine": 0.1413,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-5",
+   "routeProbs": {
+    "encyclopedia": 0.4786,
+    "news": 0.0028,
+    "policy": 0.0026,
+    "none": 0.5159
+   },
+   "routerMs": 1187,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.3805,
+     "checkMs": 2051,
+     "passages": [
+      {
+       "docId": "enc-cheese",
+       "chunk": 3,
+       "score": 0.2141,
+       "cosine": 0.2141,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 0,
+       "score": 0.1057,
+       "cosine": 0.1057,
+       "keyword": null
+      },
+      {
+       "docId": "enc-lake",
+       "chunk": 3,
+       "score": 0.0608,
+       "cosine": 0.0608,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.1774,
+     "checkMs": 3011,
+     "passages": [
+      {
+       "docId": "news-sleep",
+       "chunk": 0,
+       "score": 0.1963,
+       "cosine": 0.1963,
+       "keyword": null
+      },
+      {
+       "docId": "news-clinics",
+       "chunk": 0,
+       "score": 0.1825,
+       "cosine": 0.1825,
+       "keyword": null
+      },
+      {
+       "docId": "news-sleep",
+       "chunk": 1,
+       "score": 0.1656,
+       "cosine": 0.1656,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-6",
+   "routeProbs": {
+    "encyclopedia": 0.5885,
+    "news": 0.0372,
+    "policy": 0.002,
+    "none": 0.3724
+   },
+   "routerMs": 1163,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.3612,
+     "checkMs": 2053,
+     "passages": [
+      {
+       "docId": "enc-cheese",
+       "chunk": 1,
+       "score": 0.1324,
+       "cosine": 0.1324,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.1079,
+       "cosine": 0.1079,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 3,
+       "score": 0.1029,
+       "cosine": 0.1029,
+       "keyword": null
+      }
+     ]
+    },
+    "news": {
+     "pAnswered": 0.2126,
+     "checkMs": 2416,
+     "passages": [
+      {
+       "docId": "news-bikelanes",
+       "chunk": 3,
+       "score": 0.1399,
+       "cosine": 0.1399,
+       "keyword": null
+      },
+      {
+       "docId": "news-clinics",
+       "chunk": 0,
+       "score": 0.0915,
+       "cosine": 0.0915,
+       "keyword": null
+      },
+      {
+       "docId": "news-cup",
+       "chunk": 1,
+       "score": 0.0869,
+       "cosine": 0.0869,
+       "keyword": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-7",
+   "routeProbs": {
+    "encyclopedia": 0.0496,
+    "news": 0.0183,
+    "policy": 0.0412,
+    "none": 0.891
+   },
+   "routerMs": 1146,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.6951,
+     "checkMs": 2042,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 4,
+       "score": 0.1335,
+       "cosine": 0.1335,
+       "keyword": null
+      },
+      {
+       "docId": "enc-castellan",
+       "chunk": 2,
+       "score": 0.1258,
+       "cosine": 0.1258,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 3,
+       "score": 0.093,
+       "cosine": 0.093,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.556,
+     "checkMs": 2225,
+     "passages": [
+      {
+       "docId": "pol-library",
+       "chunk": 0,
+       "score": 0.6,
+       "cosine": 0.2008,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-library",
+       "chunk": 3,
+       "score": 0.5786,
+       "cosine": 0.1884,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 2,
+       "score": 0.5219,
+       "cosine": 0.1556,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "q-none-8",
+   "routeProbs": {
+    "encyclopedia": 0.0597,
+    "news": 0.0004,
+    "policy": 0.0011,
+    "none": 0.9388
+   },
+   "routerMs": 1138,
+   "perRoute": {
+    "encyclopedia": {
+     "pAnswered": 0.0084,
+     "checkMs": 2480,
+     "passages": [
+      {
+       "docId": "enc-lighthouse",
+       "chunk": 2,
+       "score": 0.0816,
+       "cosine": 0.0816,
+       "keyword": null
+      },
+      {
+       "docId": "enc-cheese",
+       "chunk": 1,
+       "score": 0.0654,
+       "cosine": 0.0654,
+       "keyword": null
+      },
+      {
+       "docId": "enc-bridge",
+       "chunk": 3,
+       "score": 0.0627,
+       "cosine": 0.0627,
+       "keyword": null
+      }
+     ]
+    },
+    "policy": {
+     "pAnswered": 0.3574,
+     "checkMs": 2565,
+     "passages": [
+      {
+       "docId": "pol-library",
+       "chunk": 0,
+       "score": 0.6,
+       "cosine": 0.0538,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 2,
+       "score": 0.5708,
+       "cosine": 0.045,
+       "keyword": 0
+      },
+      {
+       "docId": "pol-house",
+       "chunk": 0,
+       "score": 0.5126,
+       "cosine": 0.0275,
+       "keyword": 0
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

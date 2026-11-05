@@ -1,0 +1,300 @@
+{
+ "name": "Laya RAG 라우터 샘플 v1",
+ "description": "RAG 라우터용 질문들로, 이 데모를 위해 작성되었다. 각 질문에는 담당해야 할 라우트가 있고, 지식 질문에는 그 지식 베이스에서 답을 찾을 수 있는지(가능하면 그대로 인용한 근거 구간까지) 표시되어 있다. 지식 베이스 질문은 corpus.json의 가상 문서에 관한 것이다.",
+ "routes": [
+  {
+   "id": "encyclopedia",
+   "name": "백과사전 RAG",
+   "dataset": "encyclopedic",
+   "description": "백과사전 해설 글 (인물·장소·음식·자연의 사실)",
+   "retriever": "dense",
+   "k": 3,
+   "note": "백과사전 구간 위의 밀도 기반 검색(MiniLM 코사인)"
+  },
+  {
+   "id": "news",
+   "name": "뉴스 RAG",
+   "dataset": "news",
+   "description": "뉴스 기사 (최근 사건 보도)",
+   "retriever": "dense",
+   "k": 3,
+   "note": "뉴스 구간 위의 밀도 기반 검색(MiniLM 코사인)"
+  },
+  {
+   "id": "policy",
+   "name": "정책 RAG",
+   "dataset": "policy",
+   "description": "정책·규정 (기간·한도·절차 규칙)",
+   "retriever": "hybrid",
+   "k": 3,
+   "note": "하이브리드 검색: MiniLM 코사인에 BM25 키워드를 결합. 정책 텍스트에서는 정확한 용어와 숫자가 중요하기 때문이다"
+  },
+  {
+   "id": "none",
+   "name": "검색 없음",
+   "dataset": null,
+   "description": "검색 불필요 (인사, 계산, 글쓰기 요청)",
+   "retriever": null,
+   "k": 0,
+   "note": "찾아볼 것이 없음: 어시스턴트가 직접 답하거나 거절한다"
+  }
+ ],
+ "questions": [
+  {
+   "id": "q-enc-1",
+   "question": "바른홀트 등대는 언제 처음 점등되었나요?",
+   "route": "encyclopedia",
+   "docId": "enc-lighthouse",
+   "answerable": true,
+   "evidence": "1868년에 처음 점등되었다"
+  },
+  {
+   "id": "q-enc-2",
+   "question": "소렐 밸리 철도는 원래 무엇을 운반하기 위해 건설되었나요?",
+   "route": "encyclopedia",
+   "docId": "enc-railway",
+   "answerable": true,
+   "evidence": "펜윅 채석장의 석판을 알드미어의 운하 부두로 운반하기 위해"
+  },
+  {
+   "id": "q-enc-3",
+   "question": "헬레나 카스텔란은 어디서 화학을 공부했나요?",
+   "route": "encyclopedia",
+   "docId": "enc-castellan",
+   "answerable": true,
+   "evidence": "에든버러 대학교에서 화학을 공부하여"
+  },
+  {
+   "id": "q-enc-4",
+   "question": "미렐레 다리의 주 경간장은 얼마나 되나요?",
+   "route": "encyclopedia",
+   "docId": "enc-bridge",
+   "answerable": true,
+   "evidence": "주 경간장이 410 미터인"
+  },
+  {
+   "id": "q-enc-5",
+   "question": "오르비크 치즈는 어떤 우유로 만들어지나요?",
+   "route": "encyclopedia",
+   "docId": "enc-cheese",
+   "answerable": true,
+   "evidence": "날 생양유로 만드는"
+  },
+  {
+   "id": "q-enc-6",
+   "question": "임베르 호는 얼마나 깊나요?",
+   "route": "encyclopedia",
+   "docId": "enc-lake",
+   "answerable": true,
+   "evidence": "최대 수심은 118 미터에 이르러"
+  },
+  {
+   "id": "q-enc-7",
+   "question": "누가 바른홀트 등대 탑을 빨간색으로 칠했나요?",
+   "route": "encyclopedia",
+   "docId": "enc-lighthouse",
+   "answerable": false,
+   "evidence": null
+  },
+  {
+   "id": "q-enc-8",
+   "question": "1950년대에 어떤 물고기가 임베르 호에 넣어졌나요?",
+   "route": "encyclopedia",
+   "docId": "enc-lake",
+   "answerable": false,
+   "evidence": null
+  },
+  {
+   "id": "q-news-1",
+   "question": "할로베이 시의회는 자전거 차도를 두고 어떻게 표결했나요?",
+   "route": "news",
+   "docId": "news-bikelanes",
+   "answerable": true,
+   "evidence": "표결에서 7 대 2로 찬성하여"
+  },
+  {
+   "id": "q-news-2",
+   "question": "브라이트워터 푸즈는 지난 분기에 얼마를 벌었나요?",
+   "route": "news",
+   "docId": "news-earnings",
+   "answerable": true,
+   "evidence": "3분기 순이익이 전년 동기의 5,800만 달러에서 4,600만 달러로 줄었다고 발표했다"
+  },
+  {
+   "id": "q-news-3",
+   "question": "폭풍 엘린 때 몇 가구의 전력이 끊겼나요?",
+   "route": "news",
+   "docId": "news-storm",
+   "answerable": true,
+   "evidence": "약 60,000가구의 전력을 끊었다"
+  },
+  {
+   "id": "q-news-4",
+   "question": "학교 시작이 늦어졌을 때 학생들은 얼마나 더 잤나요?",
+   "route": "news",
+   "docId": "news-sleep",
+   "answerable": true,
+   "evidence": "밤에 평균 34분 더 잤다는"
+  },
+  {
+   "id": "q-news-5",
+   "question": "컵 결승전에서 두 골을 넣은 리버사이드 유나이티드 선수는 누구인가요?",
+   "route": "news",
+   "docId": "news-cup",
+   "answerable": true,
+   "evidence": "카이 오세이는 후반에 두 골을 추가하며"
+  },
+  {
+   "id": "q-news-6",
+   "question": "새 당일 접수 진료소는 어떤 시간에 문을 엽나요?",
+   "route": "news",
+   "docId": "news-clinics",
+   "answerable": true,
+   "evidence": "주말을 포함해 매일 오전 8시부터 밤 10시까지"
+  },
+  {
+   "id": "q-news-7",
+   "question": "할로베이 자전거 차도 공사를 수주한 회사는 어디인가요?",
+   "route": "news",
+   "docId": "news-bikelanes",
+   "answerable": false,
+   "evidence": null
+  },
+  {
+   "id": "q-news-8",
+   "question": "폭풍 엘린 뒤의 복구 비용은 얼마였나요?",
+   "route": "news",
+   "docId": "news-storm",
+   "answerable": false,
+   "evidence": null
+  },
+  {
+   "id": "q-pol-1",
+   "question": "루멘 홈에서 물건을 반품하려면 얼마나 있어야 하나요?",
+   "route": "policy",
+   "docId": "pol-returns",
+   "answerable": true,
+   "evidence": "배송 후 30일 이내에"
+  },
+  {
+   "id": "q-pol-2",
+   "question": "정규직 직원에게는 연차가 며칠 주어지나요?",
+   "route": "policy",
+   "docId": "pol-leave",
+   "answerable": true,
+   "evidence": "유급 연차 25일을"
+  },
+  {
+   "id": "q-pol-3",
+   "question": "파셀리 API의 속도 한도를 넘으면 어떻게 되나요?",
+   "route": "policy",
+   "docId": "pol-api",
+   "answerable": true,
+   "evidence": "HTTP 429 응답을 받는다"
+  },
+  {
+   "id": "q-pol-4",
+   "question": "카든 카운티 도서관에서 자료를 한 번에 몇 권 빌릴 수 있나요?",
+   "route": "policy",
+   "docId": "pol-library",
+   "answerable": true,
+   "evidence": "한 번에 최대 15권의 자료를 대출할 수 있다"
+  },
+  {
+   "id": "q-pol-5",
+   "question": "보야저 베이직 여행자 보험은 스키 부상을 보상하나요?",
+   "route": "policy",
+   "docId": "pol-insurance",
+   "answerable": true,
+   "evidence": "선택 애드온인 어드벤처 팩을 추가하지 않는 한"
+  },
+  {
+   "id": "q-pol-6",
+   "question": "린덴 코트에서 개를 키울 수 있나요?",
+   "route": "policy",
+   "docId": "pol-house",
+   "answerable": true,
+   "evidence": "15킬로그램 미만의 개 같은"
+  },
+  {
+   "id": "q-pol-7",
+   "question": "루멘 홈 주문을 매장에 가서 반품할 수 있나요?",
+   "route": "policy",
+   "docId": "pol-returns",
+   "answerable": false,
+   "evidence": null
+  },
+  {
+   "id": "q-pol-8",
+   "question": "출산휴가는 전액 급여 지급인가요?",
+   "route": "policy",
+   "docId": "pol-leave",
+   "answerable": false,
+   "evidence": null
+  },
+  {
+   "id": "q-none-1",
+   "question": "안녕하세요, 오늘 기분은 어떤가요?",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  },
+  {
+   "id": "q-none-2",
+   "question": "17 곱하기 23은 얼마인가요?",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  },
+  {
+   "id": "q-none-3",
+   "question": "가을에 관한 짧은 시를 써 주세요.",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  },
+  {
+   "id": "q-none-4",
+   "question": "Python에서 리스트를 뒤집으려면 어떻게 하나요?",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  },
+  {
+   "id": "q-none-5",
+   "question": "'good morning'을 프랑스어로 번역해 주실 수 있나요?",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  },
+  {
+   "id": "q-none-6",
+   "question": "고양이에 관한 농담 하나 들려 주세요.",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  },
+  {
+   "id": "q-none-7",
+   "question": "감사합니다, 필요한 건 다 확인했어요!",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  },
+  {
+   "id": "q-none-8",
+   "question": "가장 좋아하는 색은 무엇인가요?",
+   "route": "none",
+   "docId": null,
+   "answerable": null,
+   "evidence": null
+  }
+ ]
+}

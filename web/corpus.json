@@ -1,0 +1,183 @@
+{
+  "name": "Laya RAG 판정 샘플 v1",
+  "license": "Apache-2.0 (이 데모용으로 작성됨)",
+  "description": "이 데모를 위해 직접 작성한, 수동 라벨링된 클레임 검증 샘플이다. 모든 문서는 가상의 장소, 조직, 인물 또는 정책을 다루므로, 클레임의 정답 라벨은 세상 지식이 아니라 오직 근거 문서에만 의존한다. supported 클레임은 문서를 바꾸어 말하거나 문서에서 바로 도출되고, not_supported 클레임은 숫자나 개체를 바꾸거나 문서와 모순되거나 문서에 없는 내용을 추가한다. 세 데이터셋은 LLM-AggreFact 같은 근거 기반 사실성 벤치마크의 장르(백과사전, 뉴스, 정책/문서 텍스트)를 흉내 내지만, 벤치마크 텍스트는 포함되어 있지 않다.",
+  "datasets": {
+    "encyclopedic": "위키백과식 백과사전 항목",
+    "news": "짧은 뉴스 기사",
+    "policy": "정책, 약관, 제품 문서"
+  },
+  "kinds": {
+    "paraphrase": "지지됨: 문서를 다른 말로 표현한다",
+    "inference": "지지됨: 작은 추론 단계(산술, 두 사실의 결합)를 거쳐 문서에서 도출된다",
+    "number": "지지 안 됨: 숫자, 날짜 또는 수량이 바뀌었다",
+    "entity": "지지 안 됨: 이름, 장소 또는 유형이 바뀌었다",
+    "contradiction": "지지 안 됨: 문서의 내용과 정반대이다",
+    "unverifiable": "지지 안 됨: 그럴듯하지만 문서에 나오지 않는다"
+  },
+  "documents": {
+    "enc-lighthouse": {
+      "dataset": "encyclopedic", "title": "바른홀트 등대",
+      "text": "바른홀트 등대는 케셀 섬 북단의 화강암 해안 절벽 위에 서 있다. 마틸데 오르스크 엔지니어가 설계했으며 1868년에 처음 점등되었다. 탑의 높이는 34 미터이고 인근 채석장에서 캔 화강암 블록으로 세워졌다. 원래 렌즈는 파리에서 만든 1종 프레넬 렌즈였다. 1931년에 기름등이 전기 조명으로 교체되었고, 이 조명은 22해리 떨어진 곳에서도 보였다. 마지막 상주 등대지기 안톤 브레비크는 1987년에 등대를 떠났고, 그해 조명이 완전 자동화되었다. 이후 등대지기 관사는 케셀 문화유산 협회가 작은 박물관으로 운영하고 있다. 박물관은 5월부터 9월까지 열리며, 2004년 복원 공사 때 철거된 원래 렌즈를 전시하고 있다. 지금은 대체용 LED 방송 장치가 등대 정상의 랜턴실에서 운영되고 있다. 방문객은 주말에 나선 계단 152개 층단을 올라 전망 갤러리에 갈 수 있다."
+    },
+    "enc-railway": {
+      "dataset": "encyclopedic", "title": "소렐 밸리 철도",
+      "text": "소렐 밸리 철도는 시장 도시 알드미어와 펜윅 크로스 마을 사이 14 킬로미터를 달리는 협궤 유산 철도이다. 이 노선은 1897년에 펜윅 채석장의 석판을 알드미어의 운하 부두로 운반하기 위해 개통되었다. 1903년, 지역 주민들이 회사에 청원한 뒤 여객 운행이 추가되었다. 채석장은 1949년에 문을 닫았고 철도는 수송량 대부분을 잃었다. 소유주들은 1952년에 이 철도를 폐쇄했고, 선로는 2년 뒤에 철거되었다. 1971년, 자원봉사자들이 노선 복원을 목표로 소렐 밸리 철도 트러스트를 결성했다. 알드미어에서 브룩 홀트까지의 첫 복원 구간은 1980년에 재개통되었다. 펜윅 크로스까지의 전 노선은 1998년에 복원되었다. 오늘날 트러스트는 증기 기관차 3대를 운영하며, 그중 가장 오래된 기관차는 1895년 웨일스의 한 채석장을 위해 제작되었다. 열차는 8월에는 매일, 그 밖의 기간에는 주말에 운행한다."
+    },
+    "enc-castellan": {
+      "dataset": "encyclopedic", "title": "헬레나 카스텔란",
+      "text": "헬레나 카스텔란(1921-2004)은 해양 산성화 연구로 알려진 해양 화학자이다. 그녀는 발파라이소에서 태어나 에든버러 대학교에서 화학을 공부하여 1944년에 졸업했다. 전쟁 후 그녀는 커리어 대부분을 보낸 플리머스 해양연구소에 합류했다. 그녀는 1962년, 9년 동안 매월 채집한 시료를 바탕으로 영국 해협 탄산염 화학에 관한 최초의 장기 측정 결과를 발표했다. 그녀의 데이터는 이후 바닷물이 이산화 탄소를 흡수하는 방식에 관한 연구의 기준선이 되었다. 카스텔란은 1975년 왕립학회 회원으로 선출되었다. 그녀는 대학 교수직을 한 번도 맡지 않은 채 해양연구소에 머무르기를 선호했다. 은퇴 후 그녀는 1989년에 출판된 대중서 《잔잔하지 않는 바다》를 썼다. 연구소가 운영하는 조사선 한 척은 2010년에 그녀의 이름을 따서 명명되었다."
+    },
+    "enc-bridge": {
+      "dataset": "encyclopedic", "title": "미렐레 다리",
+      "text": "미렐레 다리는 던마크 시에서 오스테 강을 가로지르는 4차선 도로를 실어 나른다. 이 다리는 두 개의 콘크리트 주탑이 수면 위로 96 미터 솟아 있으며, 주 경간장이 410 미터인 사장교이다. 공사는 2009년에 시작되어 이 다리는 2013년 6월에 개통했으며, 이 자리에서 1850년대부터 운행해 온 페리를 대체했다. 이 사업의 비용은 3억 8천만 유로로, 주로 연약한 강 점토에 기초를 시공하느라 지연된 탓에 원래 예산보다 약 15퍼센트 더 나왔다. 데크의 동쪽 편에는 별도의 자전거·보행자 도로가 있다. 통행료는 공사 자금 대출을 갚기 위해 처음 10년 동안 부과되었고, 2023년 7월에 폐지되었다. 평균적인 평일에는 약 31,000대의 차량이 이 다리를 건넌다."
+    },
+    "enc-cheese": {
+      "dataset": "encyclopedic", "title": "오르비크 치즈",
+      "text": "오르비크는 테산 지역 고지대 계곡에서 날 생양유로 만드는 반경성 치즈이다. 떼들이 산지 초원에서 방목하는 4월부터 10월 사이에만 생산된다. 커드는 약 4 킬로그램 무게의 바퀴 모양으로 압착된 뒤 소금과 으깬 주니퍼 열매를 문질러 입힌다. 치즈 바퀴는 석회암 지하 저장고에서 최소 5개월 이상 숙성되며, 자연 곰팡이가 껍질의 회색 빛을 내게 한다. 2011년부터 오르비크라는 이름은 보호받고 있으며, 등록된 23개 목장의 치즈만 이 이름으로 판매할 수 있다. 연간 생산량은 약 90톤이며, 그 대부분은 지역 내에서 판매된다. 이 치즈는 전통적으로 식사 마지막에 꿀과 호두와 함께 내어진다."
+    },
+    "enc-lake": {
+      "dataset": "encyclopedic", "title": "임베르 호",
+      "text": "임베르 호는 할린 산맥의 빙하호로, 해발 1,240 미터에 자리한다. 약 6.5 제곱킬로미터를 덮으며 최대 수심은 118 미터에 이르러 이 산맥에서 가장 깊은 호수이다. 호수는 주로 임베르 빙하의 융설로 공급받는데, 이 빙하는 1920년 측정이 시작된 이후 2킬로미터 이상 후퇴했다. 물이 차가운 탓에 호수는 12월부터 5월 초까지 얼어붙는다. 유일한 유출 수로인 셀 강은 호수를 떠나자마자 임베르 폭포로 떨어진다. 북극권화어 개체군이 호수에서 살고 있으며, 마지막 빙기가 끝난 이후로 고립되어 온 것으로 여겨진다. 낚시는 배에서만, 그리고 6월부터 9월 사이에만 허용된다. 가장 가까운 도로가 9킬로미터 떨어진 곳에서 끝나기 때문에 방문객은 도보로 호수에 도착해야 한다."
+    },
+    "news-bikelanes": {
+      "dataset": "news", "title": "시의회, 보호 자전거 차도 승인",
+      "text": "할로베이 시의회는 화요일에 열린 표결에서 7 대 2로 찬성하여, 도시에서 가장 붐비는 거리 네 곳을 따라 보호 자전거 차도망 조성을 승인했다. 이 계획은 콘크리트 연석으로 차량과 구분되는 총연장 18 킬로미터의 차도를 추가할 것이다. 작업은 3월에 시작해 내년 말까지 끝날 것으로 예상된다. 이 사업의 비용은 1,240만 달러이며, 그중 800만 달러는 봄에 수여된 주 교통 보조금으로 충당된다. 이 계획을 제안한 다나 휫필드 의원은 도시의 자전거 사고가 3년 연속 늘었다고 말했다. 반대표를 던진 두 의원은 주차 공간 340개가 사라지면 머서 거리 상점들이 타격을 입을 것이라고 주장했다. 의회는 자전거 차도 개통 1년 뒤에 지역 상점가에 미치는 영향을 재검토하기로 합의했다."
+    },
+    "news-earnings": {
+      "dataset": "news", "title": "브라이트워터 푸즈 분기 실적",
+      "text": "브라이트워터 푸즈는 3분기 순이익이 전년 동기의 5,800만 달러에서 4,600만 달러로 줄었다고 발표했다. 냉동 식품의 가격 상승에 힘입어 매출은 4퍼센트 늘어 11억 달러에 달했다. 회사는 포장과 운송 비용 상승이 마진을 압박했다고 밝혔다. 최고경영자 마커스 오헨은 분석가들에게 회사가 내년 중반까지 가장 오래된 린데일 공장을 폐쇄하고 생산을 크레스트필드의 더 새로운 공장으로 옮기겠다고 말했다. 약 220개 일자리가 영향을 받겠지만, 회사는 대부분의 근로자에게 전보를 제공하겠다고 밝혔다. 브라이트워터는 연간 이익 전망도 하향 조정했다. 발표 직후 주가는 개장 초반에 6퍼센트 하락했다."
+    },
+    "news-storm": {
+      "dataset": "news", "title": "폭풍 엘린이 서부 해안을 강타하다",
+      "text": "폭풍 엘린은 하룻밤 사이 서부 해안에 시속 최대 140 킬로미터의 돌풍을 몰아넣어 약 60,000가구의 전력을 끊었다. 국가 기상청은 일요일 오후 연안 지역에 붉은 경보를 발령했다. 외곽 섬으로 가는 페리 2개 노선이 운행 중단되었고, 모를란 근처에서 나무가 쓰러진 뒤 주요 연안 고속도로는 몇 시간 동안 통제되었다. 사망자는 보고되지 않았지만, 3명이 가벼운 부상으로 병원에서 치료를 받았다. 월요일 저녁 무렵 전력 회사는 4,000가구를 제외한 모든 가구에 전력이 복구되었다고 밝혔다. 기상 예보관들은 수요일에는 많은 비가 국지적 홍수를 일으킬 수 있지만 한 주 나머지 기간에는 잔잔한 날씨가 이어질 것으로 본다."
+    },
+    "news-sleep": {
+      "dataset": "news", "title": "학교 시작이 늦으면 잠이 더 많아진다",
+      "text": "노를란드 지역 중학생 2,400명을 대상으로 한 연구에서, 8시가 아니라 9시에 등교하는 학생들은 밤에 평균 34분 더 잤다는 사실이 밝혀졌다. 칼베르 대학교 연구진은 2022년에 늦은 등교로 전환한 10개 학교와 그렇지 않은 10개 학교를 비교했다. 늦게 등교하는 학교의 학생들은 아침 수업 중에 졸림이 덜하다고도 보고했다. 하지만 이 연구는 1년 뒤 두 집단의 시험 성적에서 뚜렷한 차이를 찾지 못했다. 연구의 제1저자인 소피아 린드크비스트 박사는 성적이 시간이 지나며 개선되는지 보려면 더 긴 연구가 필요하다고 말했다. 이 결과는 청소년 건강 연구 학술지에 발표되었다."
+    },
+    "news-cup": {
+      "dataset": "news", "title": "리버사이드 유나이티드, 지역 컵 우승",
+      "text": "리버사이드 유나이티드는 토요일 열린 지역 컵 결승전에서 캐로 파크의 18,500명 관중 앞에서 이스트게이트 로버스를 3-1로 누르고 우승했다. 이스트게이트는 경기 12분에 레온 음베키의 헤더로 먼저 앞서 갔다. 리버사이드는 전반이 끝나기 직전 토마시 브로나의 프리킥 골로 동점을 만들었다. 교체 선수로 나온 카이 오세이는 후반에 두 골을 추가하며 승리를 완성했다. 리버사이드의 1994년 이후 첫 컵 정상이다. 이스트게이트는 71분에 주장 조엘 하트가 두 번째 옐로카드로 퇴장당하면서 10명으로 경기를 마쳤다."
+    },
+    "news-clinics": {
+      "dataset": "news", "title": "당일 접수 진료소 3곳을 연다",
+      "text": "지역 보건당국은 병원 응급실의 대기 시간을 줄이기 위해 다음 달부터 애슈비, 펠, 노스코트에 당일 접수 진료소 3곳을 열 것이다. 이 진료소들은 가벼운 부상과 질병을 다루며 주말을 포함해 매일 오전 8시부터 밤 10시까지 문을 연다. 각 진료소에는 간호사들과 최소 1명의 의사가 근무한다. 당국은 현재 응급실을 찾는 환자의 약 3분의 1은 당일 접수 진료소에서 치료받을 수 있을 것이라고 밝혔다. 진료소 운영 비용은 연간 520만 달러이다. 환자는 예약이 필요 없지만, 가슴 통증 같은 중증 질환을 가진 환자는 여전히 병원에 가라고 안내받을 것이다."
+    },
+    "pol-returns": {
+      "dataset": "policy", "title": "루멘 홈 반품 정책",
+      "text": "루멘 홈에서 구매한 물건은 사용하지 않았고 원래 포장 상태라면 배송 후 30일 이내에 전액 환불받을 수 있다. 최종 판매로 표시된 세일 상품은 반품할 수 없다. 매트리스는 사용했다 하더라도 배송 후 100일 이내에 반품할 수 있지만, 수거 요금 50달러가 붙는다. 반품을 시작하려면 고객은 온라인 계정에서 반품 라벨을 요청해야 한다. 75달러가 넘는 주문은 반품 배송이 무료이며, 그보다 작은 주문은 라벨 비용이 환불금에서 공제된다. 환불은 물건이 창고에 도착한 뒤 7영업일 이내에 원래 결제 수단으로 지급된다. 기프트 카드는 환불하거나 현금으로 교환할 수 없다."
+    },
+    "pol-leave": {
+      "dataset": "policy", "title": "연차 정책",
+      "text": "정규직 직원은 공휴일과 별도로 매년 유급 연차 25일을 받는다. 시간제 직원은 근무 시간에 비례해 연차를 받는다. 사용하지 않은 연차는 최대 5일까지 다음 해로 이월할 수 있지만, 3월 말까지 사용하지 않으면 소멸된다. 연속 10영업일을 초과하는 휴가 신청은 최소 8주 전에 부서장의 승인이 필요하다. 신입 직원은 첫날부터 연차를 쌓지만 6개월 수습 기간 동안에는 5일 이상 사용할 수 없다. 회사를 떠나는 직원은 쌓아 두고 사용하지 않은 연차에 대해 금전 보상을 받는다."
+    },
+    "pol-api": {
+      "dataset": "policy", "title": "파셀리 API 속도 한도",
+      "text": "파셀리 API는 스탠다드 플랜에서 API 키당 분당 최대 600개 요청, 엔터프라이즈 플랜에서 분당 3,000개 요청을 허용한다. 한도를 초과한 요청은 기다려야 하는 초 수를 알려주는 Retry-After 헤더와 함께 HTTP 429 응답을 받는다. 속도 한도는 키별로 따로 적용되므로, 키가 여러 개인 계정은 총계로 더 많은 요청을 보낼 수 있다. 웹훅 전송은 한도에 포함되지 않는다. 한 소포에 대한 조회 요청은 60초 동안 캐시되며, 그 기간 안의 반복 요청은 한도에 포함되지 않고 캐시된 결과를 돌려준다. 엔터프라이즈 고객은 성수기 동안 계정 관리자에게 임시 한도 상향을 요청할 수 있다."
+    },
+    "pol-library": {
+      "dataset": "policy", "title": "카든 카운티 도서관 이용 규정",
+      "text": "카든 카운티에 살거나, 일하거나, 공부하는 사람은 누구나 군립 도서관에 무료로 가입할 수 있다. 회원은 한 번에 최대 15권의 자료를 대출할 수 있다. 책은 3주간 대출할 수 있고, 다른 회원이 예약하지 않았다면 온라인이나 전화로 두 번 갱신할 수 있다. DVD는 1주일 동안 대출되며 갱신할 수 없다. 도서관은 아동 도서의 연체 벌금은 더 이상 받지 않지만, 성인 자료는 하루 20센트씩 자료당 최대 5달러까지 벌금이 부과된다. 60일이 지나도 반납되지 않은 자료는 분실로 처리되고 회원에게 대체 비용이 청구된다. 12세 미만 회원은 보호자가 신청서에 서명해야 한다."
+    },
+    "pol-insurance": {
+      "dataset": "policy", "title": "보야저 베이직 여행자 보험",
+      "text": "보야저 베이직 여행자 보험은 해외 여행 중 발생하는 응급 의료 비용을 최대 200만 달러까지 보상한다. 여행자가 질병, 부상 또는 가까운 친척의 사망으로 여행을 떠나지 못하게 되면 여행 취소가 최대 5,000달러까지 보상된다. 여행자가 단순히 마음을 바꾼 취소는 보상되지 않는다. 분실되거나 지연된 수하물은 최대 1,500달러까지 보상되며, 물건 하나당 한도는 300달러이다. 이 보험은 선택 애드온인 어드벤처 팩을 추가하지 않는 한 스키, 스쿠버다이빙 등 겨울 스포츠와 익스트림 스포츠로 인한 부상은 보상하지 않는다. 기존 질병은 가입 전에 반드시 신고해야 하며 보상에서 제외될 수 있다."
+    },
+    "pol-house": {
+      "dataset": "policy", "title": "린덴 코트 주택 규정",
+      "text": "린덴 코트 거주자는 밤 10시부터 아침 7시까지 소음을 최소화해야 한다. 자전거는 지하 자전거 보관실에 보관해야 하며 복도나 계단참에 두어서는 안 된다. 고양이, 15킬로그램 미만의 개 같은 작은 반려동물은 허용되지만, 거주자는 건물 관리소에 등록해야 한다. 바비큐는 1층 테라스에서만 할 수 있으며 숯이 아니라 가스를 사용해야 한다. 옥상 테라스는 4월부터 10월까지 오전 8시부터 밤 9시까지 모든 거주자에게 개방된다. 쓰레기는 마당 수거함에 일반 쓰레기, 종이, 유리, 음식물 쓰레기로 분류해 담아야 하며, 수거함은 매주 화요일과 금요일에 비워진다."
+    }
+  },
+  "claims": [
+    { "id": "enc-lighthouse-1", "docId": "enc-lighthouse", "claim": "이 등대는 마틸데 오르스크의 설계로 1868년에 처음 점등되었다.", "label": "supported", "kind": "paraphrase", "evidence": "마틸데 오르스크 엔지니어가 설계했으며 1868년에 처음 점등되었다" },
+    { "id": "enc-lighthouse-2", "docId": "enc-lighthouse", "claim": "1987년 이후 이 조명은 상주 등대지기 없이 운영되어 왔다.", "label": "supported", "kind": "inference", "evidence": "1987년에 등대를 떠났고, 그해 조명이 완전 자동화되었다" },
+    { "id": "enc-lighthouse-3", "docId": "enc-lighthouse", "claim": "1931년에 설치된 전기 조명은 32해리 떨어진 곳에서도 보였다.", "label": "not_supported", "kind": "number", "evidence": "이 조명은 22해리 떨어진 곳에서도 보였다" },
+    { "id": "enc-lighthouse-4", "docId": "enc-lighthouse", "claim": "원래 프레넬 렌즈가 지금도 랜턴실에서 빛을 내고 있다.", "label": "not_supported", "kind": "contradiction", "evidence": "지금은 대체용 LED 방송 장치가 등대 정상의 랜턴실에서 운영되고 있다" },
+
+    { "id": "enc-railway-1", "docId": "enc-railway", "claim": "이 철도는 원래 석판을 운하 부두로 운반하기 위해 건설되었다.", "label": "supported", "kind": "paraphrase", "evidence": "펜윅 채석장의 석판을 알드미어의 운하 부두로 운반하기 위해" },
+    { "id": "enc-railway-2", "docId": "enc-railway", "claim": "자원봉사자들이 1998년에 펜윅 크로스까지의 전 노선을 복원했다.", "label": "supported", "kind": "paraphrase", "evidence": "펜윅 크로스까지의 전 노선은 1998년에 복원되었다" },
+    { "id": "enc-railway-3", "docId": "enc-railway", "claim": "이 노선에서는 1897년 개통 이래 여객 열차가 계속 운행해 왔다.", "label": "not_supported", "kind": "contradiction", "evidence": "1903년, 지역 주민들이 회사에 청원한 뒤 여객 운행이 추가되었다" },
+    { "id": "enc-railway-4", "docId": "enc-railway", "claim": "이 철도는 1952년에 홍수가 선로를 파괴했기 때문에 폐쇄되었다.", "label": "not_supported", "kind": "unverifiable", "evidence": null },
+
+    { "id": "enc-castellan-1", "docId": "enc-castellan", "claim": "카스텔란은 1962년 측정을 위해 9년 동안 매월 해수 시료를 채집했다.", "label": "supported", "kind": "paraphrase", "evidence": "9년 동안 매월 채집한 시료를 바탕으로" },
+    { "id": "enc-castellan-2", "docId": "enc-castellan", "claim": "카스텔란 사망 6년 뒤에 한 조사선이 그녀의 이름을 따서 명명되었다.", "label": "supported", "kind": "inference", "evidence": "연구소가 운영하는 조사선 한 척은 2010년에 그녀의 이름을 따서 명명되었다" },
+    { "id": "enc-castellan-3", "docId": "enc-castellan", "claim": "카스텔란은 에든버러 대학교의 화학 교수였다.", "label": "not_supported", "kind": "contradiction", "evidence": "대학 교수직을 한 번도 맡지 않은 채" },
+    { "id": "enc-castellan-4", "docId": "enc-castellan", "claim": "카스텔란의 책 《잔잔하지 않는 바다》는 과학 저술 부문 내셔널 상을 수상했다.", "label": "not_supported", "kind": "unverifiable", "evidence": null },
+
+    { "id": "enc-bridge-1", "docId": "enc-bridge", "claim": "이 다리는 같은 개활지에서 150년 넘게 운행해 온 페리를 대체했다.", "label": "supported", "kind": "inference", "evidence": "이 자리에서 1850년대부터 운행해 온 페리를 대체했다" },
+    { "id": "enc-bridge-2", "docId": "enc-bridge", "claim": "예산 초과는 주로 연약한 점탯 기초 시공의 지연 때문이었다.", "label": "supported", "kind": "paraphrase", "evidence": "주로 연약한 강 점토에 기초를 시공하느라 지연된 탓에" },
+    { "id": "enc-bridge-3", "docId": "enc-bridge", "claim": "미렐레 다리는 주 경간장이 410 미터인 현수교이다.", "label": "not_supported", "kind": "entity", "evidence": "주 경간장이 410 미터인 사장교이다" },
+    { "id": "enc-bridge-4", "docId": "enc-bridge", "claim": "운전자들은 여전히 미렐레 다리 통행료를 내야 한다.", "label": "not_supported", "kind": "contradiction", "evidence": "2023년 7월에 폐지되었다" },
+
+    { "id": "enc-cheese-1", "docId": "enc-cheese", "claim": "오르비크는 최소 5개월 동안 숙성해야 한다.", "label": "supported", "kind": "paraphrase", "evidence": "석회암 지하 저장고에서 최소 5개월 이상 숙성되며" },
+    { "id": "enc-cheese-2", "docId": "enc-cheese", "claim": "등록된 목장의 치즈만 오르비크라는 이름으로 판매할 수 있다.", "label": "supported", "kind": "paraphrase", "evidence": "등록된 23개 목장의 치즈만 이 이름으로 판매할 수 있다" },
+    { "id": "enc-cheese-3", "docId": "enc-cheese", "claim": "오르비크는 살균 처리된 소젖으로 만든다.", "label": "not_supported", "kind": "entity", "evidence": "날 생양유로 만드는" },
+    { "id": "enc-cheese-4", "docId": "enc-cheese", "claim": "오르비크 치즈 대부분은 다른 나라로 수출된다.", "label": "not_supported", "kind": "contradiction", "evidence": "그 대부분은 지역 내에서 판매된다" },
+
+    { "id": "enc-lake-1", "docId": "enc-lake", "claim": "임베르 빙하는 1920년 이후 2킬로미터 이상 후퇴했다.", "label": "supported", "kind": "paraphrase", "evidence": "1920년 측정이 시작된 이후 2킬로미터 이상 후퇴했다" },
+    { "id": "enc-lake-2", "docId": "enc-lake", "claim": "방문객은 임베르 호까지 차로 갈 수 없다.", "label": "supported", "kind": "inference", "evidence": "가장 가까운 도로가 9킬로미터 떨어진 곳에서 끝나기 때문에" },
+    { "id": "enc-lake-3", "docId": "enc-lake", "claim": "임베르 호는 할린 산맥의 호수 중 넓이가 가장 크다.", "label": "not_supported", "kind": "unverifiable", "evidence": null },
+    { "id": "enc-lake-4", "docId": "enc-lake", "claim": "여름에 낚시꾼들은 임베르 호 기슭에서 낚시할 수 있다.", "label": "not_supported", "kind": "contradiction", "evidence": "낚시는 배에서만" },
+
+    { "id": "news-bikelanes-1", "docId": "news-bikelanes", "claim": "자전거 차도 자금 대부분은 주 보조금에서 나온다.", "label": "supported", "kind": "inference", "evidence": "그중 800만 달러는 봄에 수여된 주 교통 보조금으로 충당된다" },
+    { "id": "news-bikelanes-2", "docId": "news-bikelanes", "claim": "이 계획에 반대한 의원들은 주차 공간 상실이 상점들에 해가 될까 걱정했다.", "label": "supported", "kind": "paraphrase", "evidence": "주차 공간 340개가 사라지면 머서 거리 상점들이 타격을 입을 것이라고 주장했다" },
+    { "id": "news-bikelanes-3", "docId": "news-bikelanes", "claim": "시의회는 자전거 차도 계획을 만장일치로 승인했다.", "label": "not_supported", "kind": "contradiction", "evidence": "표결에서 7 대 2로 찬성하여" },
+    { "id": "news-bikelanes-4", "docId": "news-bikelanes", "claim": "새 자전거 차도 공사는 이미 끝났다.", "label": "not_supported", "kind": "contradiction", "evidence": "작업은 3월에 시작해" },
+
+    { "id": "news-earnings-1", "docId": "news-earnings", "claim": "매출이 늘었음에도 브라이트워터의 분기 이익은 전년 대비 줄었다.", "label": "supported", "kind": "inference", "evidence": "전년 동기의 5,800만 달러에서 4,600만 달러로 줄었다고" },
+    { "id": "news-earnings-2", "docId": "news-earnings", "claim": "브라이트워터는 생산을 린데일에서 크레스트필드로 옮길 계획이다.", "label": "supported", "kind": "paraphrase", "evidence": "생산을 크레스트필드의 더 새로운 공장으로 옮기겠다고" },
+    { "id": "news-earnings-3", "docId": "news-earnings", "claim": "브라이트워터는 연간 이익 전망을 상향 조정했다.", "label": "not_supported", "kind": "contradiction", "evidence": "브라이트워터는 연간 이익 전망도 하향 조정했다" },
+    { "id": "news-earnings-4", "docId": "news-earnings", "claim": "린데일 공장의 폐쇄로 약 420개 일자리가 영향을 받는다.", "label": "not_supported", "kind": "number", "evidence": "약 220개 일자리가 영향을 받겠지만" },
+
+    { "id": "news-storm-1", "docId": "news-storm", "claim": "월요일 저녁까지 정전된 대부분의 가구에 전력이 복구되었다.", "label": "supported", "kind": "inference", "evidence": "4,000가구를 제외한 모든 가구에 전력이 복구되었다고 밝혔다" },
+    { "id": "news-storm-2", "docId": "news-storm", "claim": "폭풍으로 사망자는 보고되지 않았다.", "label": "supported", "kind": "paraphrase", "evidence": "사망자는 보고되지 않았지만" },
+    { "id": "news-storm-3", "docId": "news-storm", "claim": "폭풍 동안 외곽 섬행 페리는 모두 정상 운행했다.", "label": "not_supported", "kind": "contradiction", "evidence": "외곽 섬으로 가는 페리 2개 노선이 운행 중단되었고" },
+    { "id": "news-storm-4", "docId": "news-storm", "claim": "폭풍 엘린의 피해액은 약 3천만 달러로 추산된다.", "label": "not_supported", "kind": "unverifiable", "evidence": null },
+
+    { "id": "news-sleep-1", "docId": "news-sleep", "claim": "늦게 등교하는 학교의 학생들은 매밤 약 30분씩 더 잤다.", "label": "supported", "kind": "paraphrase", "evidence": "밤에 평균 34분 더 잤다는 사실이 밝혀졌다" },
+    { "id": "news-sleep-2", "docId": "news-sleep", "claim": "1년 뒤 이 연구는 시험 성적의 뚜렷한 개선을 발견하지 못했다.", "label": "supported", "kind": "paraphrase", "evidence": "두 집단의 시험 성적에서 뚜렷한 차이를 찾지 못했다" },
+    { "id": "news-sleep-3", "docId": "news-sleep", "claim": "이 연구는 늦은 등교 시간이 학생들의 시험 성적을 높여 준다고 보여 주었다.", "label": "not_supported", "kind": "contradiction", "evidence": "두 집단의 시험 성적에서 뚜렷한 차이를 찾지 못했다" },
+    { "id": "news-sleep-4", "docId": "news-sleep", "claim": "이 연구는 20개 서로 다른 교육구의 학생들을 비교했다.", "label": "not_supported", "kind": "entity", "evidence": "2022년에 늦은 등교로 전환한 10개 학교와 그렇지 않은 10개 학교를 비교했다" },
+
+    { "id": "news-cup-1", "docId": "news-cup", "claim": "리버사이드 유나이티드는 역전 끝에 결승전을 승리했다.", "label": "supported", "kind": "inference", "evidence": "이스트게이트는 경기 12분에 레온 음베키의 헤더로 먼저 앞서 갔다" },
+    { "id": "news-cup-2", "docId": "news-cup", "claim": "카이 오세이는 벤치에서 나와 두 골을 넣었다.", "label": "supported", "kind": "paraphrase", "evidence": "교체 선수로 나온 카이 오세이는 후반에 두 골을 추가하며" },
+    { "id": "news-cup-3", "docId": "news-cup", "claim": "이스트게이트 로버스가 지역 컵 결승전에서 우승했다.", "label": "not_supported", "kind": "contradiction", "evidence": "이스트게이트 로버스를 3-1로 누르고 우승했다" },
+    { "id": "news-cup-4", "docId": "news-cup", "claim": "레온 음베키는 71분에 퇴장당했다.", "label": "not_supported", "kind": "entity", "evidence": "주장 조엘 하트가 두 번째 옐로카드로 퇴장당하면서" },
+
+    { "id": "news-clinics-1", "docId": "news-clinics", "claim": "새 진료소는 일주일 내내 문을 연다.", "label": "supported", "kind": "inference", "evidence": "주말을 포함해 매일 오전 8시부터 밤 10시까지 문을 연다" },
+    { "id": "news-clinics-2", "docId": "news-clinics", "claim": "환자는 예약 없이 진료소를 찾을 수 있다.", "label": "supported", "kind": "paraphrase", "evidence": "환자는 예약이 필요 없지만" },
+    { "id": "news-clinics-3", "docId": "news-clinics", "claim": "당일 접수 진료소는 하루 24시간 문을 연다.", "label": "not_supported", "kind": "contradiction", "evidence": "주말을 포함해 매일 오전 8시부터 밤 10시까지 문을 연다" },
+    { "id": "news-clinics-4", "docId": "news-clinics", "claim": "당일 접수 진료소는 가슴 통증 환자를 위한 것이다.", "label": "not_supported", "kind": "contradiction", "evidence": "가슴 통증 같은 중증 질환을 가진 환자는 여전히 병원에 가라고 안내받을 것이다" },
+
+    { "id": "pol-returns-1", "docId": "pol-returns", "claim": "매트리스는 사용했더라도 수거 요금을 내면 100일 이내에 반품할 수 있다.", "label": "supported", "kind": "paraphrase", "evidence": "매트리스는 사용했다 하더라도 배송 후 100일 이내에 반품할 수 있지만" },
+    { "id": "pol-returns-2", "docId": "pol-returns", "claim": "75달러 미만 주문의 반품 라벨 비용은 고객이 부담한다.", "label": "supported", "kind": "inference", "evidence": "그보다 작은 주문은 라벨 비용이 환불금에서 공제된다" },
+    { "id": "pol-returns-3", "docId": "pol-returns", "claim": "최종 판매 상품도 30일 이내에는 반품할 수 있다.", "label": "not_supported", "kind": "contradiction", "evidence": "최종 판매로 표시된 세일 상품은 반품할 수 없다" },
+    { "id": "pol-returns-4", "docId": "pol-returns", "claim": "환불은 상품권으로 지급된다.", "label": "not_supported", "kind": "contradiction", "evidence": "환불은 물건이 창고에 도착한 뒤 7영업일 이내에 원래 결제 수단으로 지급된다" },
+
+    { "id": "pol-leave-1", "docId": "pol-leave", "claim": "지난해 이월된 휴가는 3월 말까지 쓰지 않으면 사라진다.", "label": "supported", "kind": "paraphrase", "evidence": "3월 말까지 사용하지 않으면 소멸된다" },
+    { "id": "pol-leave-2", "docId": "pol-leave", "claim": "회사를 떠나는 직원은 쓰지 않은 쌓인 연차에 대해 보수를 받는다.", "label": "supported", "kind": "paraphrase", "evidence": "회사를 떠나는 직원은 쌓아 두고 사용하지 않은 연차에 대해 금전 보상을 받는다" },
+    { "id": "pol-leave-3", "docId": "pol-leave", "claim": "직원은 사용하지 않은 연차를 10일까지 다음 해로 이월할 수 있다.", "label": "not_supported", "kind": "number", "evidence": "사용하지 않은 연차는 최대 5일까지 다음 해로 이월할 수 있지만" },
+    { "id": "pol-leave-4", "docId": "pol-leave", "claim": "신입 직원은 수습 기간이 끝날 때까지 연차를 쌓지 못한다.", "label": "not_supported", "kind": "contradiction", "evidence": "신입 직원은 첫날부터 연차를 쌓지만" },
+
+    { "id": "pol-api-1", "docId": "pol-api", "claim": "속도 한도를 넘기면 기다려야 할 시간을 알려 주는 HTTP 429 오류가 돌아온다.", "label": "supported", "kind": "paraphrase", "evidence": "기다려야 하는 초 수를 알려주는 Retry-After 헤더와 함께 HTTP 429 응답을 받는다" },
+    { "id": "pol-api-2", "docId": "pol-api", "claim": "웹훅 전송은 속도 한도에서 제외된다.", "label": "supported", "kind": "paraphrase", "evidence": "웹훅 전송은 한도에 포함되지 않는다" },
+    { "id": "pol-api-3", "docId": "pol-api", "claim": "스탠다드 플랜은 키당 분당 3,000개 요청을 허용한다.", "label": "not_supported", "kind": "number", "evidence": "스탠다드 플랜에서 API 키당 분당 최대 600개 요청" },
+    { "id": "pol-api-4", "docId": "pol-api", "claim": "계정의 모든 API 키는 하나의 속도 한도를 공유한다.", "label": "not_supported", "kind": "contradiction", "evidence": "속도 한도는 키별로 따로 적용되므로" },
+
+    { "id": "pol-library-1", "docId": "pol-library", "claim": "도서관은 아동 도서에 연체 벌금을 부과하지 않는다.", "label": "supported", "kind": "paraphrase", "evidence": "아동 도서의 연체 벌금은 더 이상 받지 않지만" },
+    { "id": "pol-library-2", "docId": "pol-library", "claim": "성인 자료의 연체 벌금은 절대 5달러를 넘지 않는다.", "label": "supported", "kind": "paraphrase", "evidence": "하루 20센트씩 자료당 최대 5달러까지 벌금이 부과된다" },
+    { "id": "pol-library-3", "docId": "pol-library", "claim": "DVD는 온라인으로 한 번 갱신할 수 있다.", "label": "not_supported", "kind": "contradiction", "evidence": "DVD는 1주일 동안 대출되며 갱신할 수 없다" },
+    { "id": "pol-library-4", "docId": "pol-library", "claim": "카든 카운티 밖에 사는 사람은 연 10달러를 내고 가입할 수 있다.", "label": "not_supported", "kind": "unverifiable", "evidence": null },
+
+    { "id": "pol-insurance-1", "docId": "pol-insurance", "claim": "스키 부상은 어드벤처 팩을 추가했을 때만 보상된다.", "label": "supported", "kind": "paraphrase", "evidence": "선택 애드온인 어드벤처 팩을 추가하지 않는 한" },
+    { "id": "pol-insurance-2", "docId": "pol-insurance", "claim": "분실 물건 하나에 지급되는 최대 금액은 300달러이다.", "label": "supported", "kind": "paraphrase", "evidence": "물건 하나당 한도는 300달러이다" },
+    { "id": "pol-insurance-3", "docId": "pol-insurance", "claim": "단순히 마음이 바뀐 경우에도 여행 취소를 청구할 수 있다.", "label": "not_supported", "kind": "contradiction", "evidence": "여행자가 단순히 마음을 바꾼 취소는 보상되지 않는다" },
+    { "id": "pol-insurance-4", "docId": "pol-insurance", "claim": "응급 의료 비용은 최대 500만 달러까지 보상된다.", "label": "not_supported", "kind": "number", "evidence": "응급 의료 비용을 최대 200만 달러까지 보상한다" },
+
+    { "id": "pol-house-1", "docId": "pol-house", "claim": "고양이를 키우는 거주자는 건물 관리소에 등록해야 한다.", "label": "supported", "kind": "paraphrase", "evidence": "거주자는 건물 관리소에 등록해야 한다" },
+    { "id": "pol-house-2", "docId": "pol-house", "claim": "린덴 코트에서 숯 바비큐는 금지되어 있다.", "label": "supported", "kind": "paraphrase", "evidence": "숯이 아니라 가스를 사용해야 한다" },
+    { "id": "pol-house-3", "docId": "pol-house", "claim": "거주자는 옥상 테라스를 일 년 내내 사용할 수 있다.", "label": "not_supported", "kind": "contradiction", "evidence": "4월부터 10월까지" },
+    { "id": "pol-house-4", "docId": "pol-house", "claim": "계단을 막지 않는다면 자전거를 복도에 둘 수 있다.", "label": "not_supported", "kind": "contradiction", "evidence": "복도나 계단참에 두어서는 안 된다" }
+  ]
+}

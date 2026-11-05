@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laya RAG 라우터</title>
+<meta name="description" content="브라우저 안의 RAG 라우터: Laya 유형화된 의사결정 모델이 질문에 맞는 지식 베이스를 고르고, 검색된 구절이 실제로 질문에 답하는지 확인합니다. 어떤 데이터도 페이지 밖으로 나가지 않습니다.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="./coi.js"></script>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" class="logo-bg"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <h1>Laya RAG 판별기</h1>
+      <p>브라우저 안에서 각 질문을 알맞은 지식 베이스로 라우팅합니다</p>
+    </div>
+  </div>
+  <div class="topright">
+    <nav class="nav" aria-label="페이지"><a href="./index.html">주장 검증</a><a href="./rag-eval.html">평가</a><a href="./router.html" aria-current="page">라우터</a></nav>
+    <div class="modelpill" id="modelPill" role="status"><span class="dot"></span><span id="modelPillText">모델이 로드되지 않았습니다</span></div>
+  </div>
+</header>
+
+<section class="card modelcard" id="modelCard">
+  <div class="modelrow">
+    <div class="field">
+      <label for="variant">판별 모델 빌드 (Laya)</label>
+      <select id="variant"><option>매니페스트를 읽는 중…</option></select>
+    </div>
+    <div class="field">
+      <label for="backend">백엔드</label>
+      <select id="backend">
+        <option value="auto">자동 (int4는 WebGPU, 아니면 WASM)</option>
+        <option value="wasm">WASM (CPU)</option>
+        <option value="webgpu">WebGPU (int4 빌드 전용)</option>
+      </select>
+    </div>
+    <button id="loadBtn" class="primary" disabled>모델 로드</button>
+  </div>
+  <div class="progress" id="progress" hidden><div id="progressBar"></div></div>
+  <p class="status" id="status">라우터·답변 확인: <a id="modelLink" target="_blank" rel="noopener"></a>. 검색기: <a id="embedLink" target="_blank" rel="noopener"></a><span id="embedState"></span>. 모델이 로드되기 전까지 예시 질문은 같은 모델로 기록해 둔 결과를 재생합니다.</p>
+  <div class="badges" id="badges"></div>
+</section>
+
+<div class="layout">
+  <aside class="side">
+    <section class="card">
+      <h2>지식 베이스</h2>
+      <ul class="routes" id="routes"></ul>
+    </section>
+    <section class="card">
+      <div class="field">
+        <label>예시 질문 (괄호 안은 올바른 라우트)</label>
+        <div class="examples" id="examples" aria-label="예시 질문"></div>
+      </div>
+      <div class="field">
+        <label for="question">질문</label>
+        <textarea id="question" rows="3" spellcheck="false" placeholder="무엇이든 물어보세요: 문서에 관한 질문, 또는 전혀 다른 질문"></textarea>
+      </div>
+      <div class="field">
+        <label for="decl">p(검색 없음) ≥ <b id="declVal">0.60</b> 이면 검색 건너뛰기</label>
+        <input type="range" id="decl" min="0.3" max="0.95" step="0.01" value="0.6">
+        <p class="hint">이 값보다 낮으면 어쨌든 검색을 실행하고, 답변 확인 단계가 쓸 만한 결과가 돌아왔는지 판단합니다.</p>
+      </div>
+      <div class="field">
+        <label for="kbt">지식 베이스 점유율 ≥ <b id="kbtVal">0.55</b> 이면 하나만 검색</label>
+        <input type="range" id="kbt" min="0.34" max="0.9" step="0.01" value="0.55">
+        <p class="hint">점유율 = 선두 지식 베이스의 확률 ÷ 세 지식 베이스의 합계. 이 값보다 낮으면 라우터는 확률이 가장 높은 하나 대신 상위 두 개를 검색합니다.</p>
+      </div>
+      <div class="field">
+        <label for="acut">p(답변됨) ≥ <b id="acutVal">0.50</b> 이면 "답변 발견"으로 판정</label>
+        <input type="range" id="acut" min="0.1" max="0.9" step="0.01" value="0.5">
+        <p class="hint">세 슬라이더 모두 모델 호출 없이 저장된 결과를 즉시 재라우팅합니다.</p>
+      </div>
+      <div class="btnrow">
+        <button id="routeBtn" class="primary">질문 라우팅</button>
+      </div>
+      <p class="hint" id="runHint"></p>
+    </section>
+  </aside>
+
+  <main class="main">
+    <section class="card" id="resultCard">
+      <div class="placeholder" id="placeholder">예시 질문을 고르거나 직접 질문을 입력한 뒤 <b>질문 라우팅</b>을 누르세요.</div>
+      <div id="result" hidden>
+        <div id="outcome"></div>
+        <h3 class="step">1 · 라우터 <span class="meta" id="routerMeta"></span></h3>
+        <div class="routeflow" id="routeflow"></div>
+        <div id="routeProbs"></div>
+        <details><summary>라우팅 판단을 위해 Laya가 읽는 정확한 텍스트</summary><p class="hint" id="rseqNote"></p><pre id="rseq" style="white-space:pre-wrap"></pre></details>
+        <h3 class="step">2 · 검색 및 답변 확인 <span class="meta" id="searchMeta"></span></h3>
+        <div id="searched"></div>
+      </div>
+    </section>
+
+    <section class="card" id="evalCard">
+      <div class="toolbar"><h2 style="margin:0">라우터 평가</h2><span class="caption" id="evalMeta"></span></div>
+      <div class="runbar" style="margin:4px 0 10px">
+        <button id="runAllBtn">전체 질문 실행</button>
+        <button id="stopBtn" disabled>중지</button>
+        <div class="progress" id="evalProgress"><div id="evalBar" style="height:100%;width:0;background:var(--accent);transition:width .2s"></div></div>
+        <span class="count" id="evalCount">–</span>
+      </div>
+      <div class="kpis" id="rkpis"></div>
+      <div class="two">
+        <div><h2>질문이 라우팅된 곳</h2><div class="tablewrap" id="confusion"></div><p class="caption">행: 올바른 라우트. 열: 라우터가 보낸 곳 ("검색 없음"은 검색을 완전히 건너뛴 경우에만 해당). 대각선이 정답입니다.</p></div>
+        <div><h2>라우트별</h2><div class="tablewrap" id="perRoute"></div></div>
+      </div>
+      <h2 style="margin-top:14px">전체 질문</h2>
+      <div class="tablewrap"><table class="grid" id="rtable"></table></div>
+      <p class="caption">행을 누르면 해당 질문이 위에서 열립니다.</p>
+    </section>
+  </main>
+</div>
+
+<footer class="foot">
+  Laya RAG Judge · Apache-2.0 · 라우터·답변 확인: <a href="https://huggingface.co/VishalMysore/layaForWebTrained" target="_blank" rel="noopener">Laya 유형화된 의사결정 (브라우저 빌드)</a>, <a href="https://huggingface.co/convaiinnovations/laya-typed-decisions" target="_blank" rel="noopener">ConvAI Innovations의 Laya</a>에서 파생. 지식 베이스의 문서들은 이 데모를 위해 작성된 가상의 내용이며, 모든 질문은 합성적으로 만들어졌습니다. <a href="./NOTICE.txt">라이선스 고지</a>.
+</footer>
+<script type="module" src="./router.js"></script>
+</body>
+</html>
