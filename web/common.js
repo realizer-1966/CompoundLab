@@ -29,6 +29,33 @@ export function setStatus(msg, warn = false) { const s = $("status"); s.textCont
 function setProgress(f) { $("progress").hidden = f == null; if (f != null) $("progressBar").style.width = (f * 100).toFixed(1) + "%"; }
 export function pillIdle(recorded) { if (!M.laya) setPill(recorded ? "replay" : "", recorded ? "기록된 결과 · 모델을 로드하면 직접 실행할 수 있습니다" : "모델이 로드되지 않았습니다"); }
 
+// ---- PWA 설치 (모든 페이지 헤더에 노출) ------------------------------------------------------------------
+// Chrome/Edge는 beforeinstallprompt 이벤트를 잡아두면 명시적 설치 버튼을 만들 수 있다.
+// 이벤트가 오지 않으면(iOS 사파리 등) 버튼 대신 수동 방법 안내.
+(function installUi() {
+  let deferred = null;
+  const addBtn = () => {
+    const topright = document.querySelector(".topright");
+    if (!deferred || !topright || document.querySelector("#installBtn")) return;
+    const btn = Object.assign(document.createElement("button"), { id: "installBtn", type: "button", textContent: "📲 앱 설치" });
+    btn.className = "installbtn";
+    btn.addEventListener("click", async () => {
+      const d = deferred; deferred = null; btn.remove();
+      d.prompt();
+      const { outcome } = await d.userChoice;
+      if (outcome === "accepted") setStatus?.("설치되었습니다. 홈 화면의 CompoundLab을 열면 앱으로 동작합니다.");
+    });
+    topright.appendChild(btn);
+  };
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e; addBtn(); });
+  window.addEventListener("appinstalled", () => document.querySelector("#installBtn")?.remove());
+  const standalone = window.matchMedia?.("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone) return; // 이미 설치해 실행 중
+  if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+    window.__pwaHint = "iPhone/iPad(사파리용): 아래 공유 버튼 → '홈 화면에 추가'로 설치됩니다.";
+  }
+})();
+
 export async function initModelCard() {
   $("loadBtn").addEventListener("click", loadModels);
   $("embedLink").href = EMBED_MODEL.page; $("embedLink").textContent = EMBED_MODEL.id;
