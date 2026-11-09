@@ -1,5 +1,6 @@
 // Shared by both pages: the model card (Laya + the embedding model), small DOM helpers and per-browser settings.
 import { loadEmbedder, embedderCached, EMBED_MODEL } from "./embedder.js";
+import { createClef, clefBase, CLEF_DEFAULT_MODEL, CLEF_PAGE } from "./clef.js";
 
 export const $ = (id) => document.getElementById(id);
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -31,10 +32,26 @@ export function pillIdle(recorded) { if (!M.laya) setPill(recorded ? "replay" : 
 export async function initModelCard() {
   $("loadBtn").addEventListener("click", loadModels);
   $("embedLink").href = EMBED_MODEL.page; $("embedLink").textContent = EMBED_MODEL.id;
-  const m = await modelApi();
-  const base = m.modelBase();
-  const link = $("modelLink"); link.href = base === m.DEFAULT_MODEL_BASE ? m.MODEL_PAGE : base; link.textContent = base === m.DEFAULT_MODEL_BASE ? "VishalMysore/layaForWebTrained" : base;
+  // Judge backend picker: in-browser Laya ONNX, or an Ollama-hosted Clef via /v1/systemone. The retriever (MiniLM)
+  // is always the in-browser embedder, whichever backend is chosen.
+  const applyJs = () => {
+    const clef = $("jsel").value === "clef";
+    $("variantField").hidden = clef; $("backendField").hidden = clef; $("clefField").hidden = !clef;
+    $("clefModel").value = settings.get("clefModel", CLEF_DEFAULT_MODEL);
+    settings.set("jsel", $("jsel").value);
+    const link = $("modelLink");
+    if (clef) { link.href = CLEF_PAGE; link.textContent = "Ollama Clef"; }
+  };
+  $("jsel").value = settings.get("jsel", "browser");
+  applyJs();
+  $("jsel").addEventListener("change", () => { applyJs(); $("loadBtn").disabled = false; });
   try {
+    const m = await modelApi();
+    const base = m.modelBase();
+    { // the in-browser variant list uses the manifest; the Ollama path never reads it
+      const link = $("modelLink");
+      if ($("jsel").value !== "clef") { link.href = base === m.DEFAULT_MODEL_BASE ? m.MODEL_PAGE : base; link.textContent = base === m.DEFAULT_MODEL_BASE ? "VishalMysore/layaForWebTrained" : base; }
+    }
     M.manifest = await m.fetchManifest(base);
     const sel = $("variant"); sel.innerHTML = "";
     const saved = settings.get("variant", "q8e8");
@@ -48,7 +65,9 @@ export async function initModelCard() {
     $("embedState").textContent = e ? " (캐시됨)" : " (약 23 MB)";
     $("loadBtn").disabled = false;
   } catch (e) {
-    setStatus(`${base}에서 모델 매니페스트를 읽지 못했습니다 (${e.message}). 기록된 결과는 계속 사용할 수 있습니다.`, true);
+    // Without the manifest the in-browser Laya list is unusable, but the Ollama path does not need it.
+    if ($("jsel").value === "clef") $("loadBtn").disabled = false;
+    else setStatus("모델 매니페스트를 읽지 못했습니다. Ollama Clef 판별기를 선택하거나, 기록된 결과를 계속 사용할 수 있습니다.", true);
   }
 }
 
@@ -58,8 +77,24 @@ export async function loadModels() {
   setPill("busy", "모델 로드 중…");
   settings.set("variant", $("variant").value);
   try {
-    const m = await modelApi();
     if (!M.embedder) M.embedder = await loadEmbedder({ onStatus: setStatus, onProgress: setProgress });
+    if ($("jsel").value === "clef") {
+      // Ollama-hosted judge (Clef). No manifests, no ONNX: one /v1/systemone HTTP call per question. The judge state
+      // (claim + evidence) goes to the Ollama server — with a :cloud tag, on to Ollama's cloud (paid API).
+      const model = ($("clefModel").value || CLEF_DEFAULT_MODEL).trim();
+      settings.set("clefModel", model);
+      const clef = await createClef({ model, base: clefBase(), onStatus: setStatus });
+      M.laya = clef; M.model = { variant: clef.variant, backend: "ollama", threads: null };
+      const badge = (t, ok) => { const b = document.createElement("span"); b.className = "badge" + (ok ? " ok" : ""); b.textContent = t; $("badges").appendChild(b); };
+      badge("Ollama", true); badge(`판별기: Clef · ${model}`); badge(`검색기: ${EMBED_MODEL.id} · ${EMBED_MODEL.dim}차원`, true);
+      badge("개인정보: 주장과 근거 텍스트가 Ollama 서버로 전송됨", false);
+      setPill("ready", "모델 준비 완료 · Ollama Clef");
+      setStatus(`준비 완료. 판별기 Clef (${model})는 Ollama에서 실행되고, 검색기 (${(M.embedder.info.loadMs / 1000).toFixed(1)}초${M.embedder.info.fromCache ? ", 캐시됨" : ""})는 이 브라우저에서 실행됩니다.`);
+      $("loadBtn").textContent = "다시 연결";
+      for (const fn of M.listeners) fn();
+      return;
+    }
+    const m = await modelApi();
     const { laya, backend, info } = await m.loadLaya({
       base: m.modelBase(), manifest: M.manifest, variant: $("variant").value, backend: $("backend").value,
       onStatus: setStatus, onProgress: setProgress,

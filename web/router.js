@@ -127,7 +127,7 @@ function show(rec) {
   }).join("");
   $("routeProbs").innerHTML = bars(Object.fromEntries(S.routes.map((r) => [r.name, rec.routeProbs[r.id]])), routeName(o.primary));
   const inp = rec.routerInput;
-  $("rseqNote").textContent = inp ? `${inp.ids.length} 토큰. 각 [MASK]가 라우트 하나이며, Laya는 네 라우트를 한 번에 채점합니다.` : "기록된 결과: 정확한 토큰 시퀀스를 보려면 모델을 로드하고 질문을 다시 라우팅하세요.";
+  $("rseqNote").textContent = inp ? `${inp.ids.length} 토큰. 각 [MASK]가 라우트 하나이며, Laya는 네 라우트를 한 번에 채점합니다.` : "토큰 시퀀스 없음: Ollama Clef는 노출하지 않고, 기록된 결과에는 저장되지 않습니다.";
   $("rseq").textContent = inp ? inp.text.replace(/\s*(\[SEP\])\s*/g, "\n$1\n").replace(/\s*(\[MASK\])/g, "\n$1").trim() : "";
 
   // retrieval + answer check per knowledge base (the two most likely ones are always computed)
