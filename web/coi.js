@@ -5,7 +5,7 @@
   if (!("serviceWorker" in navigator) || !window.isSecureContext) return;
   const reload = () => { sessionStorage.setItem("coi-reloaded", "1"); location.reload(); };
   if (!self.crossOriginIsolated && sessionStorage.getItem("coi-reloaded") === "1") return;
-  navigator.serviceWorker.register(new URL("./coi-sw.js", document.currentScript.src)).then((reg) => {
+  navigator.serviceWorker.register(new URL("./coi-sw.js", document.currentScript.src), { updateViaCache: "none" }).then((reg) => {
     if (self.crossOriginIsolated) return; // 헤더가 이미 있음: 캐싱만
     if (reg.active && !navigator.serviceWorker.controller) return reload();
     const sw = reg.installing || reg.waiting;
