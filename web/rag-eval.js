@@ -346,8 +346,8 @@ function wire() {
   $("strip").addEventListener("keydown", (e) => { const d = e.target.closest(".dot"); if (d && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDot(d.dataset.id); } });
   $("claims").addEventListener("click", (e) => { const tr = e.target.closest(".claimrow"); if (!tr) return; const id = tr.dataset.id; S.open.has(id) ? S.open.delete(id) : S.open.add(id); renderClaims(); });
   $("claims").addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("claimrow")) { e.preventDefault(); e.target.click(); } });
-  globalThis.__lrjBuild = "2026-11-09.4";
-  window.__diag?.(`rag-eval 모듈 로드됨 · 빌드 ${globalThis.__lrjBuild}`);
+  globalThis.__lrjBuild = "2026-11-09.5";
+  window.__diag?.(`rag-eval 모듈 로드됨 · 빌드 ${globalThis.__lrjBuild} · 유령행 폐기 포함`);
   $("runHint").textContent = `빌드 ${globalThis.__lrjBuild} · "평가 실행"을 누르면 주장 ${S.corpus ? "을 판별합니다" : " 데이터를 불러온 뒤 판별합니다"}.`;
   onModelsReady(() => {
     // 평가가 진행 중이면 진행 메시지를 덮어쓰지 않는다 (모델 로드 완료 직후 클릭했을 때 진행 표시가 가려지던 결함)
