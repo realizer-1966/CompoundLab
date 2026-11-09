@@ -9,7 +9,7 @@
 //   문서(HTML)·json·모듈(.mjs/.js) → network-first (배포 직후에도 첫 로드부터 새 코드, 오프라인이면 캐시로)
 //   스타일·아이콘·manifest 등 드문 변경 자산 → stale-while-revalidate
 
-const VERSION = "v3";
+const VERSION = "v4";
 const CACHE = "compoundlab-" + VERSION;
 
 const PRECACHE = [
