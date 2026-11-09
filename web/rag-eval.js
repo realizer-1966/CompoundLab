@@ -310,6 +310,8 @@ function wire() {
   // 클릭은 언제나 피드백을 남긴다 — 조용한 무반응 방지 (runEval 자체도 내부에서 안내를 남긴다)
   // 클릭은 언제나 runEval로 — 진행 중/멈춤 판단(3분 경과 강제 해제 포함)과 안내는 runEval이 남긴다
   $("runBtn").addEventListener("click", () => {
+    try { runEval(); }
+    catch (e) { console.error(e); $("runHint").textContent = "오류: " + (e?.message || e); }
   });
   $("stopBtn").addEventListener("click", () => { S.stop = true; $("runHint").textContent = "현재 주장을 처리한 뒤 중지합니다…"; });
   $("runSel").addEventListener("change", (e) => select(e.target.value));
