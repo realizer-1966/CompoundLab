@@ -72,26 +72,33 @@ export async function createClef({ model = CLEF_DEFAULT_MODEL, base = clefBase()
     model,
     variant: model, // runKey / badges use the same field as Laya's variant id
     info: { model: "clef", source: base, variant: model },
-    async systemOne(state, questions) {
+    async systemOne(state, questions, { timeoutMs = 120000 } = {}) {
       const start = performance.now();
-      let res;
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort("timeout"), timeoutMs);
       try {
-        res = await fetch(`${base}/v1/systemone`, {
+        const res = await fetch(`${base}/v1/systemone`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           cache: "no-store",
+          signal: ctrl.signal,
           body: JSON.stringify({ model, state, questions }),
         });
+        if (!res.ok) {
+          const body = await res.text().catch(() => "");
+          throw new Error(`Clef 호출 실패 (HTTP ${res.status}): ${body.slice(0, 200) || "응답 없음"}`);
+        }
+        const data = await res.json();
+        if (!data.answers) throw new Error("Clef 응답에 answers가 없습니다: " + JSON.stringify(data).slice(0, 200));
+        return { ...data, latency_ms: performance.now() - start };
       } catch (e) {
-        throw new Error(`${base}에 접속하지 못했습니다 (${e?.message || e}). Ollama가 실행 중인지 확인하세요.`);
-      }
-      if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        throw new Error(`Clef 호출 실패 (HTTP ${res.status}): ${body.slice(0, 200) || "응답 없음"}`);
-      }
-      const data = await res.json();
-      if (!data.answers) throw new Error("Clef 응답에 answers가 없습니다: " + JSON.stringify(data).slice(0, 200));
-      return { ...data, latency_ms: performance.now() - start };
+        const m = String(e?.message || e);
+        if (e?.name === "AbortError" || /timeout/.test(m))
+          throw new Error(`Clef 응답 대기 ${timeoutMs / 1000}초 초과 — Ollama가 멈춘 것 같습니다. 다루려면 다시 누르거나 서버를 확인하세요.`);
+        if (/Clef 호출 실패|answers가 없습니다/.test(m)) throw e; // 이미 구체적인 안내를 담은 에러
+        throw new Error(`${base}에 접속하지 못했습니다 (${m}). Ollama가 실행 중인지 확인하세요.`);
+      } finally { clearTimeout(timer); }
     },
+
   };
 }

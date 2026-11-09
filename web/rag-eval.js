@@ -8,7 +8,7 @@ import * as db from "./store.js";
 const GATE_KO = { AUTO: "자동", BLOCK: "차단", HOLD: "보류" };
 
 const S = {
-  corpus: null, runs: new Map(), current: null, running: false, stop: false, open: new Set(),
+  corpus: null, runs: new Map(), current: null, running: false, runningSince: 0, stop: false, open: new Set(),
   cutoff: settings.get("cutoff", 0.5), threshold: settings.get("threshold", DEFAULT_THRESHOLD),
 };
 
@@ -74,7 +74,11 @@ function withPrev(run, prev) {
 }
 
 async function runEval() {
-  if (S.running || S.compareRunning) return;
+  // 멈춘 실행 감시: running이 3분 넘게 지속되면 (await가 멈춘 case) 강제 해제해 버튼을 다시 살린다
+  if (S.running || S.compareRunning) {
+    if (Date.now() - (S.runningSince || 0) > 180000) { S.running = false; S.compareRunning = false; }
+    else { $("runHint").textContent = `평가가 진행 중입니다 (${((Date.now() - (S.runningSince || Date.now())) / 1000).toFixed(0)}초 경과) — 진행 기록이 멈춘 것 같으면 중지 버튼을 누르거나 페이지를 새로고침하세요.`; return; }
+  }
   if (!M.laya) { $("runHint").textContent = "먼저 모델을 로드하세요 (위의 버튼). 기록된 실행 결과는 '저장된 실행 결과' 아래 목록에 있습니다."; return; }
   // 코퍼스가 아직 로드 전(페이지 로드 직후 클릭)이면 subsetClaims가 조용히 예외를 던져 버튼이 죽은 것처럼 보인다 — 로드 or 안내
   if (!S.corpus) {
@@ -100,7 +104,7 @@ async function runEval() {
     records: [], complete: false,
   };
   S.runs.set(key, run); S.current = run; S.open.clear(); fillRunSelect();
-  S.running = true; S.stop = false; $("runBtn").disabled = true; $("stopBtn").disabled = false;
+  S.running = true; S.runningSince = Date.now(); S.stop = false; $("runBtn").disabled = true; $("stopBtn").disabled = false;
   const progress = (i, n, msg) => { $("evalBar").style.width = `${(100 * i / n).toFixed(1)}%`; $("evalCount").textContent = `${i} / ${n}`; if (msg) $("runHint").textContent = msg; };
   try {
     progress(0, claims.length, "코퍼스를 인덱싱하는 중 (청킹 + 임베딩, IndexedDB에 저장)…");
@@ -300,7 +304,9 @@ function wire() {
   for (const id of ["preset", "spc", "k", "scope", "retr"]) $(id).addEventListener("change", () => settings.set(id, ["spc", "k"].includes(id) ? +$(id).value : $(id).value));
   $("w").addEventListener("input", () => { $("wVal").textContent = +$("w").value === 0 || +$("w").value === 1 ? $("w").value : (+$("w").value).toFixed(2); settings.set("w", +$("w").value); });
   $("rerank").addEventListener("change", () => settings.set("rerank", $("rerank").checked));
-  $("runBtn").addEventListener("click", runEval);
+  // 클릭은 언제나 피드백을 남긴다 — 조용한 무반응 방지 (runEval 자체도 내부에서 안내를 남긴다)
+  // 클릭은 언제나 runEval로 — 진행 중/멈춤 판단(3분 경과 강제 해제 포함)과 안내는 runEval이 남긴다
+  $("runBtn").addEventListener("click", () => { try { runEval(); } catch (e) { console.error(e); $("runHint").textContent = "오류: " + (e?.message || e); } });
   $("stopBtn").addEventListener("click", () => { S.stop = true; $("runHint").textContent = "현재 주장을 처리한 뒤 중지합니다…"; });
   $("runSel").addEventListener("change", (e) => select(e.target.value));
   $("exportBtn").addEventListener("click", () => { const r = S.current; if (r) download(`laya-rag-judge-${r.presetId}-s${r.rag.sentencesPerChunk}k${r.rag.k}-${r.rag.scope}.json`, JSON.stringify(r, null, 2)); });
@@ -334,6 +340,8 @@ function wire() {
   $("strip").addEventListener("keydown", (e) => { const d = e.target.closest(".dot"); if (d && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDot(d.dataset.id); } });
   $("claims").addEventListener("click", (e) => { const tr = e.target.closest(".claimrow"); if (!tr) return; const id = tr.dataset.id; S.open.has(id) ? S.open.delete(id) : S.open.add(id); renderClaims(); });
   $("claims").addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("claimrow")) { e.preventDefault(); e.target.click(); } });
+  globalThis.__lrjBuild = "2026-11-09.3";
+  $("runHint").textContent = `빌드 ${globalThis.__lrjBuild} · "평가 실행"을 누르면 주장 ${S.corpus ? "을 판별합니다" : " 데이터를 불러온 뒤 판별합니다"}.`;
   onModelsReady(() => { $("runHint").textContent = "모델 준비 완료. 설정을 고르고 '평가 실행'을 누르세요."; });
 }
 

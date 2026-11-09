@@ -99,5 +99,16 @@ test("평가 실행: 코퍼스 로드 직전의 클릭으로도 조용히 죽지
     assert.ok(el("kpis").innerHTML.length > 100, "KPI 렌더");
     assert.ok(el("claims").innerHTML.length > 500, "주장 표 렌더");
     assert.equal(S.running, false, "버튼 상태 회복");
+
+    // 회귀 방어: 실행이 멈춘 채로 S.running이 true로 고정되면 클릭이 조용히 무시되선 안 된다
+    S.running = true; S.runningSince = Date.now();
+    el("runBtn").click();
+    assert.match(el("runHint").textContent, /진행 중/, "잠긴 상태 클릭도 안내를 남긴다");
+    S.runningSince = Date.now() - 190000; // 3분 초과 → 강제 해제 경로
+    el("runBtn").click();
+    for (let i = 0; i < 200 && !(/완료|진행 중/.test(el("runHint").textContent) && !S.running); i++)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.match(el("runHint").textContent, /완료/, `3분 경과 시 클릭으로 실행 재개 (runHint = ${el("runHint").textContent})`);
+    assert.ok(el("runBtn").disabled === false || S.running === false);
   } finally { restore(); }
 });
