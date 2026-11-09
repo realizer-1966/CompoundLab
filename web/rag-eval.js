@@ -309,10 +309,7 @@ function wire() {
   $("rerank").addEventListener("change", () => settings.set("rerank", $("rerank").checked));
   // 클릭은 언제나 피드백을 남긴다 — 조용한 무반응 방지 (runEval 자체도 내부에서 안내를 남긴다)
   // 클릭은 언제나 runEval로 — 진행 중/멈춤 판단(3분 경과 강제 해제 포함)과 안내는 runEval이 남긴다
-  window.__diag?.("runBtn 리스너 등록 완료");
   $("runBtn").addEventListener("click", () => {
-    window.__diag?.("평가 실행 클릭 — 판별기:", M.laya?.variant || "없음", "· 코퍼스:", S.corpus ? "로드됨" : "미로드", "· 진행중:", S.running);
-    try { runEval(); } catch (e) { console.error(e); window.__diag?.("✖ runEval 동기 예외: " + (e?.message || e)); $("runHint").textContent = "오류: " + (e?.message || e); }
   });
   $("stopBtn").addEventListener("click", () => { S.stop = true; $("runHint").textContent = "현재 주장을 처리한 뒤 중지합니다…"; });
   $("runSel").addEventListener("change", (e) => select(e.target.value));
@@ -348,7 +345,6 @@ function wire() {
   $("claims").addEventListener("click", (e) => { const tr = e.target.closest(".claimrow"); if (!tr) return; const id = tr.dataset.id; S.open.has(id) ? S.open.delete(id) : S.open.add(id); renderClaims(); });
   $("claims").addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("claimrow")) { e.preventDefault(); e.target.click(); } });
   globalThis.__lrjBuild = "2026-11-09.5";
-  window.__diag?.(`rag-eval 모듈 로드됨 · 빌드 ${globalThis.__lrjBuild} · 유령행 폐기 포함`);
   $("runHint").textContent = `빌드 ${globalThis.__lrjBuild} · "평가 실행"을 누르면 주장 ${S.corpus ? "을 판별합니다" : " 데이터를 불러온 뒤 판별합니다"}.`;
   onModelsReady(() => {
     // 평가가 진행 중이면 진행 메시지를 덮어쓰지 않는다 (모델 로드 완료 직후 클릭했을 때 진행 표시가 가려지던 결함)
@@ -381,7 +377,6 @@ window.__lrj = {
     const rows = await db.getAll("runs");
     const broken = rows.filter((r) => !r?.rag || !r?.key);
     if (broken.length) {
-      window.__diag?.(`✖ rag 없는 실행 기록 ${broken.length}개 발견 — 불러오지 않고 폐기 (${broken.map((r) => r?.key || "?").slice(0, 2).join(", ")})`);
       for (const r of broken) await db.del("runs", r.key);
     }
     for (const r of rows) if (r?.rag && r?.key) S.runs.set(r.key, r);
