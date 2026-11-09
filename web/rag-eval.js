@@ -342,7 +342,11 @@ function wire() {
   $("claims").addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("claimrow")) { e.preventDefault(); e.target.click(); } });
   globalThis.__lrjBuild = "2026-11-09.3";
   $("runHint").textContent = `빌드 ${globalThis.__lrjBuild} · "평가 실행"을 누르면 주장 ${S.corpus ? "을 판별합니다" : " 데이터를 불러온 뒤 판별합니다"}.`;
-  onModelsReady(() => { $("runHint").textContent = "모델 준비 완료. 설정을 고르고 '평가 실행'을 누르세요."; });
+  onModelsReady(() => {
+    // 평가가 진행 중이면 진행 메시지를 덮어쓰지 않는다 (모델 로드 완료 직후 클릭했을 때 진행 표시가 가려지던 결함)
+    if (!S.running && !S.compareRunning)
+      $("runHint").textContent = "모델 준비 완료. 설정을 고르고 '평가 실행'을 누르세요.";
+  });
 }
 
 // Console hook: export every browser run as a recorded.json (see README, "Re-recording").
