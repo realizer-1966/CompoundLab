@@ -47,6 +47,12 @@ export async function get(store, key) {
   if (!db) return mem[store].get(key) ?? null;
   return (await done(db.transaction(store).objectStore(store).get(key))) ?? null;
 }
+/** Delete one row by key (used by upload management). Returns true if a row was removed. */
+export async function del(store, key) {
+  const db = await open();
+  if (!db) return mem[store].delete(key);
+  return done(db.transaction(store, "readwrite").objectStore(store).delete(key));
+}
 export async function getAll(store) {
   const db = await open();
   if (!db) return [...mem[store].values()];

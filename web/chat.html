@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laya RAG 판별기 — 질의응답</title>
+<meta name="description" content="브라우저 안에서 나만의 문서(PDF/TXT/MD)를 수집하고, 한국어 하이브리드 검색으로 근거를 찾아 인용 달린 답변을 생성한 뒤, 그 답변의 문장을 하나하나 판별기로 검증합니다: 자동 / 차단 / 보류.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="./coi.js"></script>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" class="logo-bg"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <h1>Laya RAG 판별기</h1>
+      <p>내 문서로 답변을 생성하고, 그 답변을 문장 단위로 검증합니다</p>
+    </div>
+  </div>
+  <div class="topright">
+    <nav class="nav" aria-label="페이지"><a href="./index.html">주장 검증</a><a href="./rag-eval.html">평가</a><a href="./router.html">라우터</a><a href="./chat.html" aria-current="page">질의응답</a><a href="./lab.html">청킹 Lab</a><a href="./production.html">프로덕션</a></nav>
+    <div class="modelpill" id="modelPill" role="status"><span class="dot"></span><span id="modelPillText">모델이 로드되지 않았습니다</span></div>
+  </div>
+</header>
+
+<section class="card modelcard" id="modelCard">
+  <div class="modelrow">
+    <div class="field">
+      <label for="jsel">판별기 백엔드</label>
+      <select id="jsel">
+        <option value="browser">브라우저 (Laya ONNX)</option>
+        <option value="clef">Ollama (Clef)</option>
+      </select>
+    </div>
+    <div class="field" id="variantField">
+      <label for="variant">판별 모델 빌드 (Laya)</label>
+      <select id="variant"><option>매니페스트를 읽는 중…</option></select>
+    </div>
+    <div class="field" id="backendField">
+      <label for="backend">백엔드</label>
+      <select id="backend">
+        <option value="auto">자동 (int4는 WebGPU, 아니면 WASM)</option>
+        <option value="wasm">WASM (CPU)</option>
+        <option value="webgpu">WebGPU (int4 빌드 전용)</option>
+      </select>
+    </div>
+    <div class="field" id="clefField" hidden>
+      <label for="clefModel">Clef 모델 (Ollama)</label>
+      <input id="clefModel" value="clef:cloud" spellcheck="false">
+    </div>
+    <button id="loadBtn" class="primary" disabled>모델 로드</button>
+  </div>
+  <div class="progress" id="progress" hidden><div id="progressBar"></div></div>
+  <p class="status" id="status">판별기: <a id="modelLink" target="_blank" rel="noopener"></a>. 검색기: <a id="embedLink" target="_blank" rel="noopener"></a><span id="embedState"></span>. 답변 생성은 Ollama 채팅 모델(선택) 또는 오프라인 Mock AI가 맡습니다.</p>
+  <div class="badges" id="badges"></div>
+</section>
+
+<div class="layout">
+  <aside class="side">
+    <section class="card">
+      <h2>문서 수집</h2>
+      <div class="field">
+        <label class="check" for="file" style="display:flex;flex-direction:column;align-items:center;gap:6px;border:1px dashed var(--line);border-radius:8px;padding:14px;cursor:pointer">
+          <span style="font-size:24px">📄</span>
+          <span>PDF / TXT / MD 파일을 선택하거나 끌어다 놓으세요</span>
+          <span class="hint" style="margin:0">텍스트는 이 브라우저에서만 청킹·임베딩되어 IndexedDB에 저장됩니다</span>
+          <input type="file" id="file" accept=".pdf,.txt,.md,.mdown,.markdown,.csv,.json" multiple hidden>
+        </label>
+      </div>
+      <div class="btnrow"><button id="clearUploadsBtn" class="ghost" disabled>업로드한 문서 전부 지우기</button></div>
+      <div id="uploadList" style="margin-top:8px"></div>
+      <p class="hint" id="ingestHint">모델을 로드하면 수집을 시작할 수 있습니다 (임베더만 필요).</p>
+    </section>
+
+    <section class="card">
+      <h2>질의응답</h2>
+      <div class="field">
+        <label for="question">질문</label>
+        <textarea id="question" rows="3" spellcheck="false" placeholder="예: 소렐 밸리 철도는 언제 개통했나요?"></textarea>
+      </div>
+      <div class="field">
+        <label for="scope">근거 범위</label>
+        <select id="scope"><option value="uploads">업로드한 문서</option><option value="corpus">예시 코퍼스 전체</option></select>
+        <p class="hint" id="scopeHint" style="margin-top:4px"></p>
+      </div>
+      <div class="row3">
+        <div class="field"><label for="k">Top-k</label><select id="k"><option>2</option><option>3</option><option selected>4</option><option>6</option></select></div>
+        <div class="field"><label for="preset">판별 질문</label><select id="preset"></select></div>
+      </div>
+      <div class="field">
+        <label for="gsel">답변 생성기</label>
+        <select id="gsel"><option value="ollama">Ollama 채팅 모델</option><option value="mock">Mock AI (오프라인, 근거 문장 그대로 인용)</option></select>
+      </div>
+      <div class="field" id="gmodelField">
+        <label for="gmodel">채팅 모델 (Ollama)</label>
+        <input id="gmodel" value="glm-5.3-flash:cloud" spellcheck="false">
+        <p class="hint">질문과 근거 구절이 이 모델 서버로 전송됩니다 (모델이 :cloud면 Ollama 클라우드까지).</p>
+      </div>
+      <div class="field">
+        <label for="thresh">차단하기 위해 필요한 최소 신뢰도: <b id="threshVal">0.10</b></label>
+        <input type="range" id="thresh" min="0" max="0.6" step="0.01" value="0.1">
+        <p class="hint">답변의 각 문장을 판별기로 검증합니다: 신뢰도 있게 지지되는 문장은 "자동", 있어서는 안 될 문장은 "차단", 기준선 미만은 "보류". 두 슬라이더는 이미 판별된 결과를 즉시 재분류합니다.</p>
+      </div>
+      <div class="field">
+        <label for="cutoff">p(지지됨) ≥ <b id="cutoffVal">0.50</b> 이면 "지지됨"</label>
+        <input type="range" id="cutoff" min="0.05" max="0.95" step="0.01" value="0.5">
+      </div>
+      <div class="btnrow">
+        <button id="askBtn" class="primary">질의응답</button>
+      </div>
+      <p class="hint" id="runHint"></p>
+    </section>
+  </aside>
+
+  <main class="main">
+    <section class="card" id="resultCard">
+      <div class="placeholder" id="placeholder">문서를 수집하고 질문을 입력한 뒤 <b>질의응답</b>을 누르세요.</div>
+      <div id="result" hidden>
+        <div id="banner"></div>
+        <h3 class="step">답변 (문장마다 판정) <span class="meta" id="genMeta"></span></h3>
+        <div id="answer"></div>
+        <h3 class="step">문장별 판별 <span class="meta" id="verdictMeta"></span></h3>
+        <div id="claims"></div>
+        <h3 class="step">근거 구절 <span class="meta" id="retrMeta"></span></h3>
+        <ol class="passages" id="passages"></ol>
+        <details><summary>생성기 프롬프트 (질문 JSON과 근거)</summary><pre id="prompt" style="white-space:pre-wrap"></pre></details>
+        <details id="traceWrap"><summary>트레이스 — 파이프라인 단계 로그</summary><pre id="trace"></pre></details>
+      </div>
+    </section>
+    <section class="card">
+      <h2>동작 방식</h2>
+      <p class="hint" style="font-size:13.5px">이 페이지는 RAG 3단계를 모두 이 탭 안(또는 명시적으로 고른 모델 서버 안)에서 실행합니다. <b>1 · 수집</b>: PDF/TXT를 브라우저에서 파싱해 청크로 나누고 다국어 MiniLM으로 임베딩해 IndexedDB에 저장합니다 (고용량 모델 서버 불필요, 재방문 시 재사용). <b>2 · 검색·생성</b>: 질문을 임베딩해 코사인+BM25 하이브리드로 근거를 찾고, 답변 생성기(Ollama 채팅 모델 또는 오프라인 Mock AI)가 각 문장에 [n] 인용을 단 답변을 만듭니다. <b>3 · 검증</b>: 답변의 문장 하나하나를 판별기(브라우저 Laya 또는 Ollama Clef)에 넣어 "근거가 이 문장을 지지하는가?"를 묻고, 확신에 따라 자동/차단/보류로 표시합니다. 근거에서 지지되지 않는 문장이 있으면 배너로 경고합니다 — 이 마지막 단계가 이 데모의 핵심입니다.</p>
+    </section>
+  </main>
+</div>
+
+<footer class="foot">
+  Laya RAG Judge · Apache-2.0 · 판별기: 브라우저 Laya 또는 Ollama Clef · 검색기: 다국어 MiniLM (브라우저) · 생성기: Ollama 채팅 모델 또는 Mock AI. 예시 문서들은 가상의 내용입니다. 모델 카드에서 각 백엔드의 데이터 전송 범위를 확인하세요.
+</footer>
+<script type="module" src="./chat.js"></script>
+</body>
+</html>

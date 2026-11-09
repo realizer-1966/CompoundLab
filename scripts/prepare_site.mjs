@@ -24,12 +24,18 @@ const vendor = [
   ["onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.mjs", "ort-wasm-simd-threaded.jsep.mjs"],
   ["onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.wasm", "ort-wasm-simd-threaded.jsep.wasm"],
   ["@huggingface/tokenizers/dist/tokenizers.min.mjs", "tokenizers.min.mjs"],
+  // PDF ingestion (chat page): pdf.js and its worker + CMaps for CID-font (Korean) PDFs.
+  ["pdfjs-dist/build/pdf.min.mjs", "pdf.min.mjs"],
+  ["pdfjs-dist/build/pdf.worker.min.mjs", "pdf.worker.min.mjs"],
 ];
 for (const [src, dst] of vendor) {
   const p = path.join(nm, src);
   need(p, "Unexpected package layout; check the pinned versions in package.json.");
   fs.copyFileSync(p, path.join(dist, "vendor", dst));
 }
+// CMap tables: needed to extract text from PDFs with CID-encoded Korean fonts.
+const cmaps = path.join(nm, "pdfjs-dist", "cmaps");
+if (fs.existsSync(cmaps)) fs.cpSync(cmaps, path.join(dist, "vendor", "cmaps"), { recursive: true });
 
 // License texts and notices travel with every copy of the site (Apache-2.0 and MIT both require it).
 for (const f of ["NOTICE.md", "LICENSE"]) { need(path.join(root, f), "It must be in the repository root."); fs.copyFileSync(path.join(root, f), path.join(dist, f)); }
