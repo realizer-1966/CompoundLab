@@ -6,10 +6,10 @@
 //     IndexedDB에 있으므로 첫 방문 한 번만 네트워크가 필요하다.
 //
 // 캐싱 정책:
-//   문서(HTML)·corpus.json  → network-first (갱신을 빨리 받고, 오프라인이면 캐시)
-//   모듈(.mjs/.js)·CSS·아이콘·manifest 등 정적  → stale-while-revalidate (즉시 캐시, 백그라운드 갱신)
+//   문서(HTML)·json·모듈(.mjs/.js) → network-first (배포 직후에도 첫 로드부터 새 코드, 오프라인이면 캐시로)
+//   스타일·아이콘·manifest 등 드문 변경 자산 → stale-while-revalidate
 
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = "compoundlab-" + VERSION;
 
 const PRECACHE = [
@@ -40,7 +40,7 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(r.url);
   if (url.origin !== location.origin) return; // 모델은 자체 캐싱(model.js/embedder.js), Ollama는 네트워크로
   if (r.cache === "only-if-cached" && r.mode !== "same-origin") return;
-  const isDoc = r.mode === "navigate" || /\.html$/.test(url.pathname) || /corpus\.json$|router\.json$|recorded\.json$/.test(url.pathname);
+  const isDoc = r.mode === "navigate" || /\.(html|json|mjs|js)$/.test(url.pathname); // 배포 반영 즉시성: 코드와 데이터는 network-first
 
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
