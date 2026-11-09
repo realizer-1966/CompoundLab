@@ -60,23 +60,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
-        if self.path.startswith("/__diag"):
-            # 진단 로그 수신: 어떤 오리진(github.io/localhost)이든 허용해 기기의 로그 파일에 적재
-            try:
-                ln = int(self.headers.get("Content-Length") or 0)
-                body = self.rfile.read(ln).decode("utf-8", "replace")
-                log = os.path.expanduser("~/lab-diag.log")
-                with open(log, "a", encoding="utf-8") as f:
-                    f.write(f"[{self.headers.get('Origin') or 'local'}] {body}\n")
-                self.send_response(204)
-            except Exception as e:
-                self.send_response(500)
-                body = str(e).encode()
-            finally:
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.send_header("Access-Control-Allow-Private-Network", "true")
-                self.end_headers()
-            return
         if self.path.startswith("/ollama"):
             return self._ollama_proxy()
         self.send_error(405)

@@ -44,7 +44,8 @@ function subsetClaims(which) {
 const runLabel = (r) => {
   const rg = r.rag || {}; // 예전/orphan 행이 rag 없이 저장될 수 있다 — 방어
   const retr = rg.retriever === "hybrid" ? ` · 하이브리드 w=${(+rg.w || 0.6).toFixed(2)}${rg.rerank ? " + 근접리랭킹" : ""}` : rg.rerank ? " · 근접리랭킹" : "";
-  return `${r.source === "recorded" ? "기록됨 · " : ""}${r.model.variant} · ${PRESETS[r.presetId]?.name.split(":")[0] || r.presetId} · ${r.rag.sentencesPerChunk}문장/청크 · k=${r.rag.k} · ${r.rag.scope === "corpus" ? "전체 코퍼스" : "문서"}${retr} · 주장 ${r.records.length}개${r.complete ? "" : " (부분)"}`;
+  const model = r.model?.variant || (r.kind === "router" ? "라우터" : "?");
+  return `${r.source === "recorded" ? "기록됨 · " : ""}${model} · ${PRESETS[r.presetId]?.name.split(":")[0] || r.presetId || r.kind || "실행"} · ${rg.sentencesPerChunk ?? 2}문장/청크 · k=${rg.k ?? "?"} · ${(rg.scope === "corpus" ? "전체 코퍼스" : "문서")}${retr} · ${r.kind === "router" ? `라우팅 질문 ${r.records?.length ?? 0}개` : `주장 ${r.records.length}개`}${r.complete === false ? " (부분)" : ""}`;
 };
 
 // Browser runs and recorded runs can share a configuration key; list them separately so neither hides the other.

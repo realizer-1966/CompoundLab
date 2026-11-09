@@ -175,14 +175,6 @@ window.__diag = (...a) => {
     document.body.appendChild(b);
   }
   if (b) b.textContent = window.__diagLog.slice(-10).join("\n");
-  // 자동 업로드: 기기의 로컬 서버(8769)로 전송 — 사용자가 복사하지 않아도 원인을 수집할 수 있도록
-  const postTo = String(location.hostname) === "localhost" || String(location.hostname) === "127.0.0.1"
-    ? "/__diag"
-    : "http://localhost:8769/__diag";
-  clearTimeout(window.__diagTimer);
-  window.__diagTimer = setTimeout(() => {
-    try { fetch(postTo, { method: "POST", body: window.__diagLog.slice(-20).join("\n"), keepalive: true }).catch(() => {}); } catch {}
-  }, 400);
 };
 window.addEventListener("error", (e) => window.__diag("✖ 오류: " + (e.message || e.type) + (e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "")));
 window.addEventListener("unhandledrejection", (e) => window.__diag("✖ 미처리 rejection: " + (e.reason?.message || e.reason)));

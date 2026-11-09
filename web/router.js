@@ -98,7 +98,10 @@ async function runAll() {
 
 async function saveRun() {
   const live = [...S.records.values()].filter((r) => S.sources.get(r.id) === "live").map(({ routerInput, ...r }) => r);
-  if (live.length) await db.putMany("runs", [{ key: runKey(), kind: "router", records: live, savedAt: new Date().toISOString() }]).catch(() => {});
+  if (live.length)
+  // 같은 "runs" 저장소를 쓰므로 평가 페이지의 형식(rag 필수)을 맞춰 저장한다 — rag 없는 행은 유령이 되어 평가 탭을 죽였었다
+  await db.putMany("runs", [{ key: runKey(), kind: "router", rag: { sentencesPerChunk: 2, overlap: 0, k: 5, scope: "corpus", retriever: "hybrid", w: 0.6 },
+    records: live, savedAt: new Date().toISOString() }]).catch(() => {});
 }
 
 // ---- rendering ---------------------------------------------------------------------------------------
