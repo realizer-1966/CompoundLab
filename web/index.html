@@ -19,7 +19,7 @@
     </div>
   </div>
   <div class="topright">
-    <nav class="nav" aria-label="페이지"><a href="./index.html" aria-current="page">주장 검증</a><a href="./rag-eval.html">평가</a><a href="./router.html">라우터</a></nav>
+    <nav class="nav" aria-label="페이지"><a href="./index.html" aria-current="page">주장 검증</a><a href="./rag-eval.html">평가</a><a href="./router.html">라우터</a><a href="./chat.html">질의응답</a><a href="./lab.html">청킹 Lab</a><a href="./production.html">프로덕션</a></nav>
     <div class="modelpill" id="modelPill" role="status"><span class="dot"></span><span id="modelPillText">모델이 로드되지 않았습니다</span></div>
   </div>
 </header>
@@ -27,16 +27,27 @@
 <section class="card modelcard" id="modelCard">
   <div class="modelrow">
     <div class="field">
+      <label for="jsel">판별기 백엔드</label>
+      <select id="jsel">
+        <option value="browser">브라우저 (Laya ONNX)</option>
+        <option value="clef">Ollama (Clef)</option>
+      </select>
+    </div>
+    <div class="field" id="variantField">
       <label for="variant">판별 모델 빌드 (Laya)</label>
       <select id="variant"><option>매니페스트를 읽는 중…</option></select>
     </div>
-    <div class="field">
+    <div class="field" id="backendField">
       <label for="backend">백엔드</label>
       <select id="backend">
         <option value="auto">자동 (int4는 WebGPU, 아니면 WASM)</option>
         <option value="wasm">WASM (CPU)</option>
         <option value="webgpu">WebGPU (int4 빌드 전용)</option>
       </select>
+    </div>
+    <div class="field" id="clefField" hidden>
+      <label for="clefModel">Clef 모델 (Ollama)</label>
+      <input id="clefModel" value="clef:cloud" spellcheck="false">
     </div>
     <button id="loadBtn" class="primary" disabled>모델 로드</button>
   </div>
@@ -80,6 +91,14 @@
           <div class="field"><label for="k">Top-k</label><select id="k"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
           <div class="field"><label for="preset">판별 질문</label><select id="preset"></select></div>
         </div>
+        <div class="row3" style="margin-top:6px">
+          <div class="field"><label for="retr">검색기</label><select id="retr"><option value="cosine">코사인</option><option value="hybrid">하이브리드</option></select></div>
+          <div class="field"><label for="w">벡터 가중치 <b id="wVal">0.60</b></label><input type="range" id="w" min="0" max="1" step="0.05" value="0.6"></div>
+          <div class="field">
+            <label class="check" style="margin-bottom:6px"><input type="checkbox" id="rerank"> 근접성 리랭킹</label>
+            <p class="hint" style="margin:0">질의 키워드가 뭉쳐 있는 구절을 끌어올립니다.</p>
+          </div>
+        </div>
         <p class="hint" id="presetHint"></p>
       </details>
       <div class="field" style="margin-top:12px">
@@ -116,7 +135,7 @@
     </section>
     <section class="card">
       <h2>동작 방식</h2>
-      <p class="hint" style="font-size:13.5px">모든 문서는 짧은 구절로 나뉘어 <b>all-MiniLM-L6-v2</b>로 임베딩되며, 벡터는 이 브라우저의 <b>IndexedDB</b>에 저장됩니다. 주장도 같은 방식으로 임베딩되고, 브루트포스 코사인 스캔으로 top-k 구절을 뽑습니다. 주장과 이 구절들이 Laya 의사결정 모델의 <b>유형화된 질문</b>의 <i>상태(state)</i>가 되고, 모델은 생성 텍스트 대신 각 선택지의 확률을 반환합니다. 이 확률이 판정을 결정하고, 그 신뢰도가 판정을 자동으로 실행할지 사람에게 보류할지 결정합니다. 모든 과정이 이 탭 안에서 실행됩니다: 서버도, API 키도 없습니다.</p>
+      <p class="hint" style="font-size:13.5px">모든 문서는 짧은 구절로 나뉘어 다국어 MiniLM으로 임베딩되며, 벡터는 이 브라우저의 <b>IndexedDB</b>에 저장됩니다. 주장도 같은 방식으로 임베딩되고, 기본 검색기는 브루트포스 코사인 스캔입니다. <b>하이브리드</b>로 바꾸면 같은 스캔에 한국어 대응 BM25 키워드 점수를 융합하고(가중치 슬라이더), <b>근접성 리랭킹</b>은 질의 키워드가 뭉쳐 있는 구절을 끌어올립니다(advancedRagDemo에서 가져온 2단계 리랭커). 주장과 이 구절들이 Laya 의사결정 모델의 <b>유형화된 질문</b>의 <i>상태(state)</i>가 되고, 모델은 생성 텍스트 대신 각 선택지의 확률을 반환합니다. 이 확률이 판정을 결정하고, 그 신뢰도가 판정을 자동으로 실행할지 사람에게 보류할지 결정합니다. 모든 과정이 이 탭 안에서 실행됩니다: 서버도, API 키도 없습니다.</p>
       <p class="hint"><a href="./rag-eval.html">평가</a> 페이지에서는 같은 파이프라인을 예시 주장 72개 전체에 실행하고 골드 라벨과 비교해 점수를 매깁니다.</p>
     </section>
   </main>

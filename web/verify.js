@@ -10,7 +10,10 @@ const S = {
   selected: null, // claim object from the corpus, if the textarea still holds it
 };
 
-const rag = () => ({ sentencesPerChunk: +$("spc").value, overlap: 0, k: +$("k").value, scope: source() === "corpus" ? "corpus" : "document" });
+const rag = () => ({
+  sentencesPerChunk: +$("spc").value, overlap: 0, k: +$("k").value, scope: source() === "corpus" ? "corpus" : "document",
+  retriever: $("retr").value, w: +$("w").value, rerank: $("rerank").checked,
+});
 const source = () => document.querySelector("input[name=source]:checked").value;
 const preset = () => $("preset").value;
 
@@ -144,12 +147,15 @@ function show(res) {
   </div>`;
 
   const hit = evidence ? evidenceRetrieved(res.passages, evidence) : null;
-  $("retrMeta").textContent = `코사인 유사도 기준 top ${res.passages.length}${res.candidates ? ` / ${res.candidates}개 구절` : ""} · 청크당 ${res.rag.sentencesPerChunk}문장${res.embedMs == null ? "" : res.embedMs >= 1 ? ` · 주장 임베딩 ${res.embedMs.toFixed(0)} ms` : " · 주장 임베딩을 IndexedDB에서 재사용"}${hit == null ? "" : hit ? " · 골드 근거 검색됨 ✓" : " · 골드 근거 검색되지 않음"}`;
+  const retrName = res.rag.retriever === "hybrid"
+    ? `하이브리드 (벡터 w=${(res.rag.w ?? 0.6).toFixed(2)} + BM25)${res.rag.rerank ? " + 근접 리랭킹" : ""}`
+    : `코사인 (벡터 전용)${res.rag.rerank ? " + 근접 리랭킹" : ""}`;
+  $("retrMeta").textContent = `${retrName} 기준 top ${res.passages.length}${res.candidates ? ` / ${res.candidates}개 구절` : ""} · 청크당 ${res.rag.sentencesPerChunk}문장${res.embedMs == null ? "" : res.embedMs >= 1 ? ` · 주장 임베딩 ${res.embedMs.toFixed(0)} ms` : " · 주장 임베딩을 IndexedDB에서 재사용"}${hit == null ? "" : hit ? " · 골드 근거 검색됨 ✓" : " · 골드 근거 검색되지 않음"}`;
   $("passages").innerHTML = res.passages.map((p, i) => {
     const doc = c.documents[p.docId];
     const isGold = evidence && p.text.includes(evidence);
     return `<li class="passage${isGold ? " gold" : ""}"><span class="rank">${i + 1}</span><div>
-      <div class="src"><span>${esc(doc ? doc.title : "직접 입력한 텍스트")} · 구절 ${p.chunk + 1}</span><span class="score"><span class="tr"><span class="f" style="width:${Math.max(0, p.score) * 100}%"></span></span>cos ${p.score.toFixed(3)}</span>${isGold ? '<span class="tag ok">골드 근거 포함</span>' : ""}</div>
+      <div class="src"><span>${esc(doc ? doc.title : "직접 입력한 텍스트")} · 구절 ${p.chunk + 1}</span><span class="score"><span class="tr"><span class="f" style="width:${Math.max(0, p.score) * 100}%"></span></span>${scoreLabel(p)}</span>${isGold ? '<span class="tag ok">골드 근거 포함</span>' : ""}</div>
       <div class="txt">${highlight(p.text, evidence)}</div></div></li>`;
   }).join("");
 
@@ -186,14 +192,14 @@ function renderAll(res, evidence) {
     const doc = docId && S.corpus.documents[docId];
     list = doc ? chunkText(doc.text, res.rag).map((c) => ({ docId, chunk: c.index, text: c.text, score: res.passages.find((p) => p.docId === docId && p.chunk === c.index)?.score ?? null })) : [];
     note = "기록된 결과: top-k 점수만 저장되어 있습니다. 모델을 로드하고 다시 검증하면 모든 점수를 볼 수 있습니다.";
-  } else { list = res.ranked; note = `주장과의 코사인 유사도 순으로 정렬되었습니다. 처음 ${res.passages.length}개(구분선 위)가 Laya로 전송되었습니다.`; }
+  } else { list = res.ranked; note = `${res.rag.retriever === "hybrid" ? "융합 점수 (벡터·BM25)" : "코사인 유사도"}·${res.rag.rerank ? "근접성" : "1차 점수"} 순으로 정렬되었습니다. 처음 ${res.passages.length}개(구분선 위)가 Laya로 전송되었습니다.`; }
   $("allSum").textContent = `주장과 비교한 모든 구절 (${list.length})`;
   $("allNote").textContent = note;
   const k = res.passages.length, sent = new Set(res.passages.map((p) => `${p.docId}|${p.chunk}`));
   $("allPassages").innerHTML = list.slice(0, 40).map((p, i) => {
     const used = sent.has(`${p.docId}|${p.chunk}`);
     return `<li class="passage" style="${used ? "" : "opacity:.6"}${res.ranked && i === k ? ";border-top:2px dashed var(--accent)" : ""}"><span class="rank">${res.ranked ? i + 1 : p.chunk + 1}</span><div>
-      <div class="src"><span>${esc(S.corpus.documents[p.docId]?.title || "직접 입력한 텍스트")} · 구절 ${p.chunk + 1}</span>${p.score != null ? `<span>cos ${p.score.toFixed(3)}</span>` : ""}${used ? '<span class="tag ok">Laya로 전송됨</span>' : '<span class="tag">전송되지 않음</span>'}</div>
+      <div class="src"><span>${esc(S.corpus.documents[p.docId]?.title || "직접 입력한 텍스트")} · 구절 ${p.chunk + 1}</span>${p.score != null ? `<span>${scoreLabel(p)}</span>` : ""}${used ? '<span class="tag ok">Laya로 전송됨</span>' : '<span class="tag">전송되지 않음</span>'}</div>
       <div class="txt">${highlight(p.text, evidence)}</div></div></li>`;
   }).join("") + (list.length > 40 ? `<li class="hint">…그 외 ${list.length - 40}개.</li>` : "");
 }
@@ -202,7 +208,9 @@ function renderAll(res, evidence) {
 function renderInput(res) {
   const inp = res.input;
   if (!inp) {
-    $("seqNote").textContent = "기록된 결과입니다. 디코딩된 토큰 시퀀스를 보려면 Laya의 토크나이저가 필요합니다: 모델을 로드하고 다시 검증하세요.";
+    $("seqNote").textContent = res.source === "model"
+      ? "Ollama Clef 판별기는 토큰 시퀀스를 노출하지 않습니다. 질문과 상태는 바로 위의 JSON에서 볼 수 있습니다."
+      : "기록된 결과입니다. 디코딩된 토큰 시퀀스를 보려면 Laya의 토크나이저가 필요합니다: 모델을 로드하고 다시 검증하세요.";
     $("seqText").textContent = "";
     return;
   }
@@ -215,6 +223,15 @@ function highlight(text, ev) {
   return esc(text).replace(esc(ev), `<mark class="ev">${esc(ev)}</mark>`);
 }
 
+/** Score labels for the current retriever mode: hybrid passages carry both parts, reranked ones the proximity. */
+function scoreLabel(p) {
+  const parts = [];
+  if (p.cosine != null) parts.push(`cos ${p.cosine.toFixed(3)}`);
+  if (p.keyword != null && p.keyword > 0) parts.push(`kw ${p.keyword.toFixed(3)}`);
+  if (p.proximity != null) parts.push(`근접 ${p.proximity.toFixed(3)}`);
+  return (parts.length ? parts.join(" · ") : `cos ${p.score.toFixed(3)}`) + (parts.length ? ` → ${p.score.toFixed(3)}` : "");
+}
+
 // ---- wiring ------------------------------------------------------------------------------------------
 
 function wire() {
@@ -224,11 +241,15 @@ function wire() {
   $("claim").addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") verify(); });
   document.querySelectorAll("input[name=source]").forEach((r) => r.addEventListener("change", sourceChanged));
   $("doc").addEventListener("change", hint);
-  for (const [id, key] of [["spc", "spc"], ["k", "k"], ["preset", "preset"]]) $(id).addEventListener("change", () => {
-    settings.set(key, key === "preset" ? $(id).value : +$(id).value);
+  for (const [id, key] of [["spc", "spc"], ["k", "k"], ["preset", "preset"], ["retr", "retr"]]) $(id).addEventListener("change", () => {
+    settings.set(key, ["spc", "k"].includes(key) ? +$(id).value : $(id).value);
     if (key === "preset") presetHint();
     hint();
   });
+  $("w").value = String(settings.get("w", 0.6)); $("wVal").textContent = (+settings.get("w", 0.6)).toFixed(2);
+  $("w").addEventListener("input", () => { $("wVal").textContent = (+$("w").value).toFixed(2); settings.set("w", +$("w").value); });
+  $("rerank").checked = settings.get("rerank", false);
+  $("rerank").addEventListener("change", () => settings.set("rerank", $("rerank").checked));
   const slider = (id, key, valId) => {
     $(id).value = S[key]; $(valId).textContent = (+S[key]).toFixed(2);
     $(id).addEventListener("input", () => { S[key] = +$(id).value; $(valId).textContent = S[key].toFixed(2); settings.set(key, S[key]); if (S.last) show(S.last); });

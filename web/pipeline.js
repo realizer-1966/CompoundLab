@@ -2,7 +2,7 @@
 //   load corpus -> chunk each document -> embed each chunk into IndexedDB -> embed the claim -> cosine top-k
 //   -> one typed Laya question (claim + retrieved passages) -> p(supported) -> gate.
 import * as db from "./store.js";
-import { chunkText, chunkConfigKey, topK, hybridTopK, evidenceRetrieved, RAG_DEFAULTS } from "./rag.js";
+import { chunkText, chunkConfigKey, topK, hybridTopK, proximityRerank, evidenceRetrieved, RAG_DEFAULTS } from "./rag.js";
 import { PRESETS, buildState, interpret, questionKey } from "./judge.js";
 import { buildSequence, toInternal } from "./laya-core.js";
 import { routerQuestion, ANSWER_CHECK } from "./router-core.js";
@@ -68,13 +68,22 @@ export async function claimVector(embedder, text) {
 
 /**
  * Top-k passages for a claim. scope "document" scans only the claim's own document (the requirements' default);
- * "corpus" scans every passage, which makes retrieval part of the test.
+ * "corpus" scans every passage, which makes retrieval part of the test. The retriever is cosine by default;
+ * `rag.retriever = "hybrid"` mixes cosine with BM25 at weight `rag.w` (0..1 on cosine), and `rag.rerank` re-sorts
+ * by query-term proximity — an advancedRagDemo import. Only cosine defaults feed the recorded runs.
  */
 export async function retrieve(embedder, claim, { rag = RAG_DEFAULTS, docId = null, pool = null } = {}) {
   const { vec, ms } = await claimVector(embedder, claim);
   const t0 = performance.now();
   const items = pool || await db.passages(passageCfg(embedder, rag), rag.scope === "corpus" ? null : docId);
-  const ranked = topK(vec, items, items.length).map(({ item, score }) => ({ docId: item.docId, chunk: item.chunk, text: item.text, score }));
+  let ranked;
+  if (rag.retriever === "hybrid") {
+    ranked = hybridTopK(claim, vec, items, items.length, rag.w ?? 0.6)
+      .map(({ item, score, cosine: cos, keyword }) => ({ docId: item.docId, chunk: item.chunk, text: item.text, score, cosine: cos, keyword }));
+  } else {
+    ranked = topK(vec, items, items.length).map(({ item, score }) => ({ docId: item.docId, chunk: item.chunk, text: item.text, score, cosine: score }));
+  }
+  if (rag.rerank) ranked = proximityRerank(claim, ranked);
   return { passages: ranked.slice(0, rag.k), ranked, candidates: items.length, embedMs: ms, searchMs: performance.now() - t0 };
 }
 
@@ -90,8 +99,10 @@ export async function judge(laya, claim, passages, presetId) {
 /**
  * The exact token sequence Laya reads for this question, decoded back to text: the same buildSequence() call that
  * systemOne() makes, so special tokens ([CLS] [SEP] and one [MASK] per option) and any truncation are visible.
+ * Returns null for judge backends without an on-device tokenizer (Ollama Clef) — the UI then shows the JSON only.
  */
 export function modelInput(laya, state, question) {
+  if (!laya.tok) return null;
   const cfg = laya.cfg;
   const { ids, markers } = buildSequence(laya.tok, laya.sp, state, toInternal(question), cfg.max_len ?? 512, cfg.head_max_len ?? 192);
   const tokens = ids.map((id) => laya.tok.decode([id], { skip_special_tokens: false }));
@@ -105,9 +116,13 @@ export async function adHocPool(embedder, text, rag) {
   return parts.map((p, j) => ({ docId: "pasted", chunk: p.index, text: p.text, vec: vecs[j] }));
 }
 
-/** Everything that identifies an evaluation run's model outputs (NOT the cutoff/threshold, which are applied later). */
+/** Everything that identifies an evaluation run's model outputs (NOT the cutoff/threshold, which are applied later).
+ *  Retrieval settings appear in the key only when they differ from the recorded defaults (cosine, no rerank), so
+ *  older recorded.json files keep matching the default configuration. */
 export function runKey({ modelVariant, presetId, rag }) {
-  return [modelVariant, presetId, questionKey(PRESETS[presetId].question), chunkConfigKey(rag), `k${rag.k}`, rag.scope].join("|");
+  const retrieval = (rag.retriever && rag.retriever !== "cosine") || rag.rerank
+    ? `ret:${rag.retriever || "cosine"},w${rag.w ?? 0.6}${rag.rerank ? ",rr" : ""}` : "";
+  return [modelVariant, presetId, questionKey(PRESETS[presetId].question), chunkConfigKey(rag), `k${rag.k}`, rag.scope, retrieval].filter(Boolean).join("|");
 }
 
 /**

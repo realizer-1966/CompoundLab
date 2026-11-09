@@ -19,7 +19,7 @@
     </div>
   </div>
   <div class="topright">
-    <nav class="nav" aria-label="페이지"><a href="./index.html">주장 검증</a><a href="./rag-eval.html" aria-current="page">평가</a><a href="./router.html">라우터</a></nav>
+    <nav class="nav" aria-label="페이지"><a href="./index.html">주장 검증</a><a href="./rag-eval.html" aria-current="page">평가</a><a href="./router.html">라우터</a><a href="./chat.html">질의응답</a><a href="./lab.html">청킹 Lab</a><a href="./production.html">프로덕션</a></nav>
     <div class="modelpill" id="modelPill" role="status"><span class="dot"></span><span id="modelPillText">모델이 로드되지 않았습니다</span></div>
   </div>
 </header>
@@ -27,16 +27,27 @@
 <section class="card modelcard" id="modelCard">
   <div class="modelrow">
     <div class="field">
+      <label for="jsel">판별기 백엔드</label>
+      <select id="jsel">
+        <option value="browser">브라우저 (Laya ONNX)</option>
+        <option value="clef">Ollama (Clef)</option>
+      </select>
+    </div>
+    <div class="field" id="variantField">
       <label for="variant">판별 모델 빌드 (Laya)</label>
       <select id="variant"><option>매니페스트를 읽는 중…</option></select>
     </div>
-    <div class="field">
+    <div class="field" id="backendField">
       <label for="backend">백엔드</label>
       <select id="backend">
         <option value="auto">자동 (int4는 WebGPU, 아니면 WASM)</option>
         <option value="wasm">WASM (CPU)</option>
         <option value="webgpu">WebGPU (int4 빌드 전용)</option>
       </select>
+    </div>
+    <div class="field" id="clefField" hidden>
+      <label for="clefModel">Clef 모델 (Ollama)</label>
+      <input id="clefModel" value="clef:cloud" spellcheck="false">
     </div>
     <button id="loadBtn" class="primary" disabled>모델 로드</button>
   </div>
@@ -57,6 +68,14 @@
         <div class="field"><label for="spc">청크당 문장 수</label><select id="spc"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
         <div class="field"><label for="k">Top-k</label><select id="k"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
         <div class="field"><label for="scope">검색 범위</label><select id="scope"><option value="document">주장이 속한 문서</option><option value="corpus">전체 코퍼스</option></select></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label for="retr">검색기</label><select id="retr"><option value="cosine">코사인 (벡터 전용)</option><option value="hybrid">하이브리드 (벡터 + BM25)</option></select></div>
+        <div class="field"><label for="w">벡터 가중치 <b id="wVal">0.60</b></label><input type="range" id="w" min="0" max="1" step="0.05" value="0.6"></div>
+        <div class="field">
+          <label class="check" style="margin-bottom:6px"><input type="checkbox" id="rerank"> 근접성 리랭킹</label>
+          <p class="hint" style="margin:0">질의 키워드가 뭉쳐 있는 구절을 끌어올립니다 (1차 점수 40% + 근접성 60%).</p>
+        </div>
       </div>
       <div class="field">
         <label for="subset">샘플</label>
@@ -94,7 +113,15 @@
         <button id="exportBtn">실행 결과 내려받기 (JSON)</button>
         <button id="clearBtn" class="ghost">이 브라우저의 인덱스와 실행 결과 지우기</button>
       </div>
-      <p class="hint">실행 결과는 IndexedDB에 캐시되며, 모델 빌드 · 질문 · 청킹 · k · 검색 범위가 키가 됩니다. 기록된 실행 결과는 페이지에 함께 배포됩니다.</p>
+      <p class="hint">실행 결과는 IndexedDB에 캐시되며, 모델 빌드 · 질문 · 청킹 · k · 검색 범위 · 검색기가 키가 됩니다. 기록된 실행 결과는 페이지에 함께 배포됩니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>검색기 비교 (판별기 없이)</h2>
+      <p class="hint">골드 근거가 있는 주장 전체를 네 가지 검색기로 검색해, 골드 구간이 top-k 안에 들어오는지 측정합니다. 판별기(Laya)는 호출되지 않고 임베더만 필요합니다.</p>
+      <div class="btnrow"><button id="retrBtn">검색 비교 실행</button></div>
+      <div class="tablewrap" id="retrTable" style="margin-top:10px"></div>
+      <p class="hint" id="retrHint"></p>
     </section>
   </aside>
 

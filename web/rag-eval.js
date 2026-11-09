@@ -12,7 +12,10 @@ const S = {
   cutoff: settings.get("cutoff", 0.5), threshold: settings.get("threshold", DEFAULT_THRESHOLD),
 };
 
-const rag = () => ({ sentencesPerChunk: +$("spc").value, overlap: 0, k: +$("k").value, scope: $("scope").value });
+const rag = () => ({
+  sentencesPerChunk: +$("spc").value, overlap: 0, k: +$("k").value, scope: $("scope").value,
+  retriever: $("retr").value, w: +$("w").value, rerank: $("rerank").checked,
+});
 
 function subsetClaims(which) {
   const cl = S.corpus.claims;
@@ -38,7 +41,10 @@ function subsetClaims(which) {
 
 // ---- runs -------------------------------------------------------------------------------------------
 
-const runLabel = (r) => `${r.source === "recorded" ? "기록됨 · " : ""}${r.model.variant} · ${PRESETS[r.presetId]?.name.split(":")[0] || r.presetId} · ${r.rag.sentencesPerChunk}문장/청크 · k=${r.rag.k} · ${r.rag.scope === "corpus" ? "전체 코퍼스" : "문서"} · 주장 ${r.records.length}개${r.complete ? "" : " (부분)"}`;
+const runLabel = (r) => {
+  const retr = r.rag.retriever === "hybrid" ? ` · 하이브리드 w=${(r.rag.w ?? 0.6).toFixed(2)}${r.rag.rerank ? " + 근접리랭킹" : ""}` : r.rag.rerank ? " · 근접리랭킹" : "";
+  return `${r.source === "recorded" ? "기록됨 · " : ""}${r.model.variant} · ${PRESETS[r.presetId]?.name.split(":")[0] || r.presetId} · ${r.rag.sentencesPerChunk}문장/청크 · k=${r.rag.k} · ${r.rag.scope === "corpus" ? "전체 코퍼스" : "문서"}${retr} · 주장 ${r.records.length}개${r.complete ? "" : " (부분)"}`;
+};
 
 // Browser runs and recorded runs can share a configuration key; list them separately so neither hides the other.
 const runId = (r) => (r.source === "recorded" ? "rec|" : "") + r.key;
@@ -56,6 +62,7 @@ function select(key) {
   S.current = r; S.open.clear();
   // reflect the run's settings in the controls, so "Run evaluation" resumes / reproduces it
   $("preset").value = r.presetId; $("spc").value = String(r.rag.sentencesPerChunk); $("k").value = String(r.rag.k); $("scope").value = r.rag.scope;
+  $("retr").value = r.rag.retriever || "cosine"; $("w").value = String(r.rag.w ?? 0.6); $("wVal").textContent = (r.rag.w ?? 0.6).toFixed(2); $("rerank").checked = !!r.rag.rerank;
   fillRunSelect(); render();
 }
 
@@ -67,9 +74,8 @@ function withPrev(run, prev) {
 }
 
 async function runEval() {
-  if (S.running) return;
-  if (!M.laya) { $("runHint").textContent = "먼저 모델을 로드하세요 (위의 버튼). 기록된 실행 결과는 '저장된 실행 결과' 아래 목록에 있습니다."; return; }
-  const r = rag(), presetId = $("preset").value, subset = $("subset").value;
+  if (S.running || S.compareRunning) return;
+  if (!M.laya) { $("runHint").textContent = "먼저 모델을 로드하세요 (위의 버튼). 기록된 실행 결과는 '저장된 실행 결과' 아래 목록에 있습니다."; return; }  const r = rag(), presetId = $("preset").value, subset = $("subset").value;
   const key = runKey({ modelVariant: M.model.variant, presetId, rag: r });
   const claims = subsetClaims(subset);
   // Resume: reuse any claim already judged under exactly this configuration (browser-made runs only).
@@ -94,9 +100,12 @@ async function runEval() {
       if (!rec) {
         const ret = await retrieve(M.embedder, c.claim, { rag: r, docId: c.docId });
         const j = await judge(M.laya, c.claim, ret.passages, presetId);
+        const fp = (x) => +(+x).toFixed(4);
         rec = {
           id: c.id, dataset: S.corpus.documents[c.docId].dataset, docId: c.docId, kind: c.kind, gold: c.label, claim: c.claim,
-          passages: ret.passages.map((p) => ({ docId: p.docId, chunk: p.chunk, text: p.text, score: +p.score.toFixed(4) })),
+          passages: ret.passages.map((p) => ({ docId: p.docId, chunk: p.chunk, text: p.text, score: fp(p.score),
+            ...(p.keyword != null ? { cosine: fp(p.cosine), keyword: fp(p.keyword) } : {}),
+            ...(p.proximity != null ? { proximity: fp(p.proximity) } : {}) })),
           pSupported: j.pSupported, confidence: j.confidence, probabilities: j.probabilities, layaMs: j.layaMs, embedMs: ret.embedMs,
           evidenceHit: evidenceRetrieved(ret.passages, c.evidence),
         };
@@ -120,6 +129,15 @@ async function runEval() {
 }
 
 // ---- rendering -------------------------------------------------------------------------------------
+
+/** Score labels for the current retriever mode: hybrid passages carry both parts, reranked ones the proximity. */
+function scoreLabel(p) {
+  const parts = [];
+  if (p.cosine != null) parts.push(`cos ${p.cosine.toFixed(3)}`);
+  if (p.keyword != null && p.keyword > 0) parts.push(`kw ${p.keyword.toFixed(3)}`);
+  if (p.proximity != null) parts.push(`근접 ${p.proximity.toFixed(3)}`);
+  return (parts.length ? parts.join(" · ") : `cos ${p.score.toFixed(3)}`) + (parts.length ? ` → ${p.score.toFixed(3)}` : "");
+}
 
 function kpi(label, value, sub = "") { return `<div class="kpi"><div class="l">${label}</div><div class="v">${value}${sub ? ` <small>${sub}</small>` : ""}</div></div>`; }
 
@@ -196,11 +214,66 @@ function renderClaims() {
     if (S.open.has(r.id)) {
       const ev = S.corpus.claims.find((c) => c.id === r.id)?.evidence;
       html += `<tr class="detailrow"><td colspan="7"><div style="font-size:12.5px;color:var(--ink2);margin-bottom:4px">${esc(S.corpus.documents[r.docId].title)} · 골드 근거 ${r.evidenceHit == null ? "해당 없음 (검증 불가한 주장)" : r.evidenceHit ? "검색됨 ✓" : "검색되지 않음"} · 신뢰도 ${r.confidence.toFixed(3)}</div>
-        <ol class="passages">${r.passages.map((p, i) => `<li class="passage${ev && p.text.includes(ev) ? " gold" : ""}"><span class="rank">${i + 1}</span><div><div class="src">${esc(S.corpus.documents[p.docId]?.title || p.docId)} · 구절 ${p.chunk + 1} · cos ${p.score.toFixed(3)}</div><div class="txt">${ev && p.text.includes(ev) ? esc(p.text).replace(esc(ev), `<mark class="ev">${esc(ev)}</mark>`) : esc(p.text)}</div></div></li>`).join("")}</ol>
+        <ol class="passages">${r.passages.map((p, i) => `<li class="passage${ev && p.text.includes(ev) ? " gold" : ""}"><span class="rank">${i + 1}</span><div><div class="src">${esc(S.corpus.documents[p.docId]?.title || p.docId)} · 구절 ${p.chunk + 1} · ${scoreLabel(p)}</div><div class="txt">${ev && p.text.includes(ev) ? esc(p.text).replace(esc(ev), `<mark class="ev">${esc(ev)}</mark>`) : esc(p.text)}</div></div></li>`).join("")}</ol>
         ${bars(r.probabilities, Object.entries(r.probabilities).sort((a, b) => b[1] - a[1])[0][0])}</td></tr>`;
     }
   }
   $("claims").innerHTML = html + (rows.length ? "" : `<tr><td colspan="7" class="placeholder">일치하는 주장이 없습니다.</td></tr>`) + "</tbody>";
+}
+
+// ---- retrieval comparison (no Laya calls) ---------------------------------------------------------
+
+// The three retrieval modes of the comparison, plus proximity reranking on top — every advancedRagDemo variant,
+// each scored on whether the gold evidence span lands in the top-k. Claim embeddings are cached, so all rows share it.
+function compareConfigs(r) {
+  const base = { sentencesPerChunk: r.sentencesPerChunk, overlap: 0, k: r.k, scope: r.scope };
+  return [
+    { id: "vector", name: "벡터 전용", rag: { ...base, retriever: "cosine" } },
+    { id: "keyword", name: "키워드 전용 (BM25)", rag: { ...base, retriever: "hybrid", w: 0, rerank: false } },
+    { id: "hybrid", name: `하이브리드 w=${(+r.w).toFixed(2)}`, rag: { ...base, retriever: "hybrid", w: +r.w, rerank: false } },
+    { id: "hybridrr", name: "하이브리드 + 근접 리랭킹", rag: { ...base, retriever: "hybrid", w: +r.w, rerank: true } },
+  ];
+}
+
+async function runCompare() {
+  if (S.compareRunning || S.running) return;
+  if (!M.embedder) { $("retrHint").textContent = "임베더가 필요합니다: 위에서 모델을 로드하세요 (판별기 없이 임베더만 내려받게 되는 버전 없음 — 모델 카드의 로드 버튼을 누르세요)."; return; }
+  const r = rag();
+  S.compareRunning = true; $("retrBtn").disabled = true; S.stop = false;
+  $("stopBtn").disabled = false;
+  const btn = $("retrBtn");
+  try {
+    $("retrHint").textContent = "코퍼스를 인덱싱하는 중…";
+    await indexCorpus(S.corpus, M.embedder, r, (i, n) => { $("retrHint").textContent = `코퍼스를 인덱싱하는 중: ${i} / ${n} 문서…`; });
+    const claims = S.corpus.claims.filter((c) => c.evidence);
+    const rows = [];
+    for (const cfg of compareConfigs(r)) {
+      let hits = 0, rankSum = 0, ms = 0;
+      const progress = (i) => { $("retrHint").textContent = `${cfg.name}: ${i} / ${claims.length} 주장 검색 중…`; };
+      for (let i = 0; i < claims.length && !S.stop; i++) {
+        const ret = await retrieve(M.embedder, claims[i].claim, { rag: cfg.rag, docId: claims[i].docId });
+        ms += ret.searchMs;
+        const idx = ret.passages.findIndex((p) => p.text.includes(claims[i].evidence));
+        if (idx >= 0) { hits++; rankSum += idx + 1; }
+        progress(i + 1);
+        await yieldToBrowser();
+      }
+      if (S.stop) { $("retrHint").textContent = "중지되었습니다."; return; }
+      rows.push({ ...cfg, n: claims.length, recall: hits / claims.length, avgRank: hits ? rankSum / hits : null, ms: ms / claims.length });
+      renderCompare(rows, r.k);
+    }
+    $("retrHint").textContent = `완료 — 근거가 있는 주장 ${claims.length}개, k=${r.k}, 범위 ${r.scope === "corpus" ? "전체 코퍼스" : "주장의 문서"}. 모든 행이 같은 주장 임베딩을 재사용합니다.`;
+  } catch (e) {
+    console.error(e); $("retrHint").textContent = "오류: " + (e?.message || e);
+  } finally {
+    S.compareRunning = false; btn.disabled = false; $("stopBtn").disabled = true;
+  }
+}
+
+function renderCompare(rows, k) {
+  const best = Math.max(...rows.map((r) => r.recall));
+  $("retrTable").innerHTML = `<table class="grid"><thead><tr><th>검색기</th><th class="r">근거 회수율@${k}</th><th class="r">평균 골드 순위</th><th class="r">ms/주장</th></tr></thead><tbody>$
+    ${rows.map((r) => `<tr${r.recall === best ? ' class="cur"' : ""}><td>${esc(r.name)}</td><td class="r"><b>${pct(r.recall, 1)}</b></td><td class="r">${r.avgRank == null ? "–" : r.avgRank.toFixed(1)}</td><td class="r">${r.ms.toFixed(0)}</td></tr>`).join("")}</tbody></table>`;
 }
 
 // ---- wiring ------------------------------------------------------------------------------------------
@@ -209,7 +282,11 @@ function wire() {
   $("preset").innerHTML = Object.entries(PRESETS).map(([k, p]) => `<option value="${k}">${esc(p.name)}</option>`).join("");
   $("preset").value = settings.get("preset", DEFAULT_PRESET);
   $("spc").value = String(settings.get("spc", 2)); $("k").value = String(settings.get("k", 3)); $("scope").value = settings.get("scope", "document");
-  for (const id of ["preset", "spc", "k", "scope"]) $(id).addEventListener("change", () => settings.set(id, ["spc", "k"].includes(id) ? +$(id).value : $(id).value));
+  $("retr").value = settings.get("retr", "cosine"); $("rerank").checked = settings.get("rerank", false);
+  $("w").value = String(settings.get("w", 0.6)); $("wVal").textContent = (+settings.get("w", 0.6)).toFixed(2);
+  for (const id of ["preset", "spc", "k", "scope", "retr"]) $(id).addEventListener("change", () => settings.set(id, ["spc", "k"].includes(id) ? +$(id).value : $(id).value));
+  $("w").addEventListener("input", () => { $("wVal").textContent = +$("w").value === 0 || +$("w").value === 1 ? $("w").value : (+$("w").value).toFixed(2); settings.set("w", +$("w").value); });
+  $("rerank").addEventListener("change", () => settings.set("rerank", $("rerank").checked));
   $("runBtn").addEventListener("click", runEval);
   $("stopBtn").addEventListener("click", () => { S.stop = true; $("runHint").textContent = "현재 주장을 처리한 뒤 중지합니다…"; });
   $("runSel").addEventListener("change", (e) => select(e.target.value));
@@ -226,6 +303,7 @@ function wire() {
   };
   slider("cutoff", "cutoff", "cutoffVal");
   slider("thresh", "threshold", "threshVal");
+  $("retrBtn").addEventListener("click", runCompare);
   $("onlyWrong").addEventListener("change", renderClaims);
   $("fDataset").addEventListener("change", renderClaims);
   // Clicking a dot opens that claim's details in the table below and scrolls to it.
@@ -253,7 +331,7 @@ window.__lrj = {
     const runs = [...S.runs.values()].filter((r) => r.source !== "recorded" && r.complete);
     if (!runs.length) throw new Error("이 브라우저에 완료된 실행 결과가 없습니다");
     const variant = runs[0].model.variant;
-    return { model: { variant, judge: "convaiinnovations/laya-multilingual", embedder: runs[0].model.embedder }, createdAt: new Date().toISOString(),
+    return { model: { variant, judge: M.laya?.kind === "clef" ? `ollama:${M.model.variant}` : "convaiinnovations/laya-multilingual", embedder: runs[0].model.embedder }, createdAt: new Date().toISOString(),
       runs: Object.fromEntries(runs.filter((r) => r.model.variant === variant).map((r) => [r.key, compactRun(r)])) };
   },
 };
