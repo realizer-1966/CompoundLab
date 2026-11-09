@@ -294,3 +294,5 @@ mark.pick { background: color-mix(in srgb, var(--accent) 22%, transparent); bord
 
 /* ---- PWA 진단줄 ---- */
 .pwa-diag { color: var(--ink2); font-size: 11.5px; margin-top: 6px; }
+
+#diag { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; padding: 6px 10px; font: 11px/1.5 ui-monospace, monospace; color: #d8ffe8; background: #0b1220ee; border-top: 1px solid var(--accent); white-space: pre-wrap; z-index: 999; max-height: 10em; overflow: auto; }

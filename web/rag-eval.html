@@ -163,6 +163,19 @@
 <footer class="foot">
   Laya RAG Judge · Apache-2.0 · 이 페이지에서는 다른 모델과의 비교를 하지 않습니다. 판별기는 샘플 자체의 골드 라벨과만 비교해 채점됩니다. 샘플은 손으로 작성한 소규모(72개 주장) 집합이므로 숫자를 벤치마크 결과가 아닌 스모크 테스트로 보십시오. <a href="./NOTICE.txt">라이선스 고지</a>.
 </footer>
+<script>
+// 진단 패널: 모듈 로드 실패·클릭·모델 상태·에러를 화면에 직접 기록 (마지막 10줄)
+window.__diagLog = [];
+window.__diag = (...a) => {
+  window.__diagLog.push(`${new Date().toTimeString().slice(0, 8)}  ` + a.map((x) => typeof x === "string" ? x : JSON.stringify(x)).join(" "));
+  const b = document.getElementById("diag");
+  if (b) b.textContent = window.__diagLog.slice(-10).join("\n");
+};
+window.addEventListener("error", (e) => window.__diag("✖ 오류: " + (e.message || e.type) + (e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "")));
+window.addEventListener("unhandledrejection", (e) => window.__diag("✖ 미처리 rejection: " + (e.reason?.message || e.reason)));
+document.addEventListener("click", (e) => window.__diag("클릭: " + (e.target?.id || e.target?.tagName || "?")), true);
+window.addEventListener("DOMContentLoaded", () => window.__diag("DOM 준비 · SW 컨트롤: " + (navigator.serviceWorker.controller ? "예" : "아직")));
+</script>
 <script type="module" src="./rag-eval.js"></script>
 </body>
 </html>
