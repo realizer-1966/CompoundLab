@@ -41,7 +41,11 @@ function fakeDom() {
   globalThis.localStorage = { getItem: () => null, setItem: () => {} };
   globalThis.sessionStorage = { getItem: () => null, setItem: () => {} };
   globalThis.CSS = { escape: (s) => s };
+  // installUi 등 페이지 공통 코드가 쓰는 브라우저 이벤트 API 스텁
   globalThis.window = globalThis;
+  globalThis.addEventListener ||= () => {};
+  globalThis.removeEventListener ||= () => {};
+  globalThis.matchMedia ||= () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
   return { el, els };
 }
 
