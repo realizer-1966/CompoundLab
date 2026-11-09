@@ -35,7 +35,7 @@ export async function clefHealth(base = clefBase(), model = readSetting("clefMod
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     tags = await r.json();
   } catch (e) {
-    throw new Error(`${base}에 접속하지 못했습니다 (${e?.message || e}). Ollama가 실행 중인지, CORS가 허용됐는지 확인하세요 (GitHub Pages에서는 OLLAMA_ORIGINS 설정 필요).`);
+    throw new Error(`${base}에 접속하지 못했습니다 (${e?.message || e}). Ollama가 실행 중인지, CORS가 허용됐는지 확인하세요 (GitHub Pages에서는 OLLAMA_ORIGINS 설정 필요). 공개 https 페이지 → 로컬 Ollama 호출은 Chrome의 내부망 접근 차단(Private Network Access)에 걸릴 수 있다. 그 경우 같은 기기의 http://localhost:8769 (로컬 서버)에서 열거나 브라우저 Laya를 쓰세요.`);
   }
   const names = (tags.models || []).map((m) => m.name);
   if (names.length && !names.some((n) => n === model || n.startsWith(model.split(":")[0] + ":") || model.startsWith(n.split(":")[0] + ":"))) {

@@ -145,6 +145,18 @@ ollama pull clef:latest       # 또는 로컬 설치 (약 18–20 GB, 전송 없
 
 사이트는 설치형 웹앱입니다. Chrome/Edge/Samsung Internet에서 주소창 옆 설치 아이콘(또는 메뉴 → "앱 설치")로 홈 화면에 추가되고, 별창 없이 독립적으로 열립니다. `coi-sw.js`(기존 cross-origin isolation 서비스워커)가 앱 캐시를 겸한다: 문서는 network-first, 정적 자산은 stale-while-revalidate. 모델 파일은 model.js/embedder.js의 해시 키 Cache Storage, 벡터와 실행 결과는 IndexedDB — 첫 방문(모델 로드) 한 번 이후에는 오프라인으로도 검색·판별·게이트 전체가 동작한다(생성기 Mock AI 모드에서). 단축 아이콘: 질의응답/주장 검증/평가.
 
+## 트러블슈팅 — Ollama 판별기 연결
+
+판별기 백엔드가 Ollama일 때 오류가 나면:
+
+1. **"Ollama가 실행 중"**: 기기에서 `ollama serve`가 돌고 있어야 한다 (`ollama list`로 확인).
+2. **CORS**: 외부 오리진(예: GitHub Pages)에서 호출하면 서버 쪽에서 허용해야 한다.
+   `OLLAMA_ORIGINS="*" ollama serve` (또는 `OLLAMA_ORIGINS="https://realizer-1966.github.io"`)로 재시작. 이 기기에서는 이미 그렇게 실행 중이다.
+3. **Chrome 내부망 접근 차단(Private Network Access)**: 공개 https 페이지 → 기기 내부의 Ollama 호출은 최신 Chrome이 막을 수 있다. 그 경우:
+   - 같은 기기에서 `http://localhost:8769`(로컬 서버)로 열면 로컬↔로컬이라 막히지 않거나,
+   - 브라우저 Laya ONNX 판별기(기본값)를 쓴다 — 외부 연결이 전혀 필요 없다.
+4. `?clefBase=http://<서버주소>:11434` URL 파라미터로 판별 서버 주소를 바꿀 수 있다.
+
 ## 샘플 코퍼스
 
 `web/corpus.json`은 세 장르(백과사전/뉴스/정책·문서)의 가상 문서 18개와 주장 72개(문서당 4개, 지지 36 / 미지지 36)입니다. 각 주장은 유형이 붙습니다: *바꿔 말함(paraphrase)*, *추론(inference)*, *숫자(number)*, *개체(entity)*, *모순(contradiction)*, *검증 불가(unverifiable)*. 모든 문서는 이 데모를 위해 **가상으로 작성**되었으므로 주장의 골드 라벨은 문서(근거)에만 의존하고 세계 지식에는 의존하지 않습니다.
