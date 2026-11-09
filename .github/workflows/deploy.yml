@@ -32,15 +32,18 @@ jobs:
       - name: Unit tests (chunking, retrieval, judge, metrics, corpus)
         run: npm test
 
-      # The models are NOT bundled here: the pages stream Laya from Hugging Face
-      # (VishalMysore/layaForWebTrained) and the embedder from Xenova/all-MiniLM-L6-v2, so the site stays ~30 MB.
+      # The models are NOT bundled here: the pages stream the multilingual Laya judge from the ONNX hosting site
+      # (laya-web-ko, convaiinnovations/laya-multilingual) and the embedder from Xenova (paraphrase-multilingual).
       - name: Assemble the site
         run: node scripts/prepare_site.mjs
 
       - name: Check the model repository is reachable
-        run: curl -fsSL https://huggingface.co/VishalMysore/layaForWebTrained/resolve/main/manifest.json | head -c 200
+        run: curl -fsSL https://realizer-1966.github.io/laya-web-ko/model-multilingual/manifest.json | head -c 200
 
       - uses: actions/configure-pages@v5
+        with:
+          # 새 저장소에서도 Pages를 자동 활성화한다 (첫 배포 실패의 원인은 보통 이것)
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
