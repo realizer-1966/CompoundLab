@@ -42,7 +42,8 @@ function subsetClaims(which) {
 // ---- runs -------------------------------------------------------------------------------------------
 
 const runLabel = (r) => {
-  const retr = r.rag.retriever === "hybrid" ? ` · 하이브리드 w=${(r.rag.w ?? 0.6).toFixed(2)}${r.rag.rerank ? " + 근접리랭킹" : ""}` : r.rag.rerank ? " · 근접리랭킹" : "";
+  const rg = r.rag || {}; // 예전/orphan 행이 rag 없이 저장될 수 있다 — 방어
+  const retr = rg.retriever === "hybrid" ? ` · 하이브리드 w=${(+rg.w || 0.6).toFixed(2)}${rg.rerank ? " + 근접리랭킹" : ""}` : rg.rerank ? " · 근접리랭킹" : "";
   return `${r.source === "recorded" ? "기록됨 · " : ""}${r.model.variant} · ${PRESETS[r.presetId]?.name.split(":")[0] || r.presetId} · ${r.rag.sentencesPerChunk}문장/청크 · k=${r.rag.k} · ${r.rag.scope === "corpus" ? "전체 코퍼스" : "문서"}${retr} · 주장 ${r.records.length}개${r.complete ? "" : " (부분)"}`;
 };
 
@@ -62,7 +63,8 @@ function select(key) {
   S.current = r; S.open.clear();
   // reflect the run's settings in the controls, so "Run evaluation" resumes / reproduces it
   $("preset").value = r.presetId; $("spc").value = String(r.rag.sentencesPerChunk); $("k").value = String(r.rag.k); $("scope").value = r.rag.scope;
-  $("retr").value = r.rag.retriever || "cosine"; $("w").value = String(r.rag.w ?? 0.6); $("wVal").textContent = (r.rag.w ?? 0.6).toFixed(2); $("rerank").checked = !!r.rag.rerank;
+  const rg = r.rag || {};
+  $("retr").value = rg.retriever || "cosine"; $("w").value = String(+rg.w || 0.6); $("wVal").textContent = (+rg.w || 0.6).toFixed(2); $("rerank").checked = !!rg.rerank;
   fillRunSelect(); render();
 }
 
@@ -168,7 +170,7 @@ function render() {
   const rs = run.records;
   const m = evaluate(rs, { cutoff: S.cutoff, threshold: S.threshold });
   $("runTitle").textContent = `${PRESETS[run.presetId]?.name || run.presetId}`;
-  $("runMeta").textContent = `${run.source === "recorded" ? "기록된 결과" : "이 브라우저에서 실행"} · Laya ${run.model.variant}${run.model.backend ? ` (${run.model.backend})` : ""} · 청크당 ${run.rag.sentencesPerChunk}문장, top-${run.rag.k}, ${run.rag.scope === "corpus" ? "전체 코퍼스" : "주장의 문서"} · 주장 ${rs.length}개${run.complete ? "" : " (부분)"}`;
+  $("runMeta").textContent = `${run.source === "recorded" ? "기록된 결과" : "이 브라우저에서 실행"} · Laya ${run.model.variant}${run.model.backend ? ` (${run.model.backend})` : ""} · 청크당 ${run.rag?.sentencesPerChunk ?? 2}문장, top-${run.rag.k}, ${run.rag.scope === "corpus" ? "전체 코퍼스" : "주장의 문서"} · 주장 ${rs.length}개${run.complete ? "" : " (부분)"}`;
   $("kpis").innerHTML = [
     kpi("정확도", pct(m.accuracy, 1), `${m.confusion.tp + m.confusion.tn}/${m.n}`),
     kpi("균형 정확도", pct(m.balancedAccuracy, 1)),
@@ -374,7 +376,15 @@ window.__lrj = {
   const recorded = expandRecorded(await loadRecorded(), S.corpus);
   if (recorded) for (const r of Object.values(recorded.runs)) S.runs.set("rec|" + r.key, { ...r, source: "recorded" });
   pillIdle(!!recorded);
-  try { for (const r of await db.getAll("runs")) S.runs.set(r.key, r); } catch { /* storage blocked */ }
+  try {
+    const rows = await db.getAll("runs");
+    const broken = rows.filter((r) => !r?.rag || !r?.key);
+    if (broken.length) {
+      window.__diag?.(`✖ rag 없는 실행 기록 ${broken.length}개 발견 — 불러오지 않고 폐기 (${broken.map((r) => r?.key || "?").slice(0, 2).join(", ")})`);
+      for (const r of broken) await db.del("runs", r.key);
+    }
+    for (const r of rows) if (r?.rag && r?.key) S.runs.set(r.key, r);
+  } catch { /* storage blocked */ }
   const want = runKey({ modelVariant: recorded?.model.variant || "q8e8", presetId: $("preset").value, rag: rag() });
   S.current = S.runs.get(want) || S.runs.get("rec|" + want) || [...S.runs.values()][0] || null;
   if (S.current) select(runId(S.current)); else { fillRunSelect(); render(); }

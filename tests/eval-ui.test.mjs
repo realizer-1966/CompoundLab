@@ -68,6 +68,30 @@ function fakeDom() {
   return { el, els };
 }
 
+test("rag 없는 유령 실행 행이 있어도 페이지 로드·평가 실행이 죽지 않고 폐기한다", async () => {
+  const { tmp, restore } = makeSite({ slowCorpusMs: 0 });
+  const { el } = fakeDom();
+  try {
+    const { M } = await import(`file://${path.join(tmp, "common.js")}`);
+    const db = await import(`file://${path.join(tmp, "store.js")}`);
+    // 유령 행: 예전 버전이 남긴 rag 없는 실행
+    await db.putMany("runs", [{ key: "orphan|broken", source: "browser", records: [] }]);
+    M.laya = { kind: "fake", variant: "fake-test", systemOne: async () => ({ answers: { verdict: { type: "choice", probabilities: { supported: 0.8, not_supported: 0.2 } } }, latency_ms: 4, usage: {} }) };
+    M.embedder = { id: "fake-hash", embed: async (ts) => ts.map(() => new Float32Array(8).fill(0.1)) };
+    M.model = { variant: "fake-test", backend: "fake", threads: 1 };
+    await import(`file://${path.join(tmp, "rag-eval.js")}`);
+    for (let i = 0; i < 50 && !(globalThis.window.__diagLog || []).length; i++) await new Promise((r) => setTimeout(r, 20));
+    const log = (globalThis.window.__diagLog || []).join(" | ");
+    // 유령 행은 폐기되고(또는 방어 라벨로) 페이지 로드 절대 죽지 않는다
+    assert.ok(!log.includes("retriever"), `rag 참조 오류 재현됨: ${log.slice(0, 200)}`);
+    el("subset").value = "quick";
+    el("runBtn").click();
+    const S = globalThis.window.__lrj.state;
+    for (let i = 0; i < 200 && !(S.current?.complete && !S.running); i++) await new Promise((r) => setTimeout(r, 25));
+    assert.match(el("runHint").textContent, /완료/, `runHint = ${el("runHint").textContent}`);
+  } finally { restore(); }
+});
+
 test("평가 실행: 코퍼스 로드 직전의 클릭으로도 조용히 죽지 않고 실행을 완료한다", async () => {
   const { tmp, restore } = makeSite();
   const { el } = fakeDom();
