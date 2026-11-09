@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent / "dist"
 class Handler(http.server.SimpleHTTPRequestHandler):
     extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map,
                       ".mjs": "text/javascript", ".js": "text/javascript", ".wasm": "application/wasm",
-                      ".onnx": "application/octet-stream", ".json": "application/json"}
+                      ".onnx": "application/octet-stream", ".json": "application/json", ".webmanifest": "application/manifest+json", ".png": "image/png"}
 
     def end_headers(self):
         if COI:

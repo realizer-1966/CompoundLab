@@ -1,0 +1,24 @@
+{
+  "name": "CompoundLab — RAG 판별기",
+  "short_name": "CompoundLab",
+  "description": "브라우저 안에서 끝나는 RAG 주장 검증기: 문서 수집과 검색은 로컬, 판별은 Laya(온디바이스) 또는 Ollama Clef로. 질의응답부터 청킹·프로덕션 Lab까지 6개 도구를 하나의 앱에서.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1220",
+  "theme_color": "#0f766e",
+  "categories": ["productivity", "education", "utilities"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "질의응답", "short_name": "질의응답", "url": "./chat.html" },
+    { "name": "주장 검증", "short_name": "검증", "url": "./index.html" },
+    { "name": "평가", "short_name": "평가", "url": "./rag-eval.html" }
+  ]
+}
