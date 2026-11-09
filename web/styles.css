@@ -292,6 +292,4 @@ mark.pick { background: color-mix(in srgb, var(--accent) 22%, transparent); bord
 #rungs .claimrow { cursor: pointer; }
 #trace { font-size: 12px; line-height: 1.7; color: var(--ink2); }
 
-/* ---- PWA 진단줄 ---- */
-.pwa-diag { color: var(--ink2); font-size: 11.5px; margin-top: 6px; }
 

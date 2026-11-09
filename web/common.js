@@ -29,50 +29,6 @@ export function setStatus(msg, warn = false) { const s = $("status"); s.textCont
 function setProgress(f) { $("progress").hidden = f == null; if (f != null) $("progressBar").style.width = (f * 100).toFixed(1) + "%"; }
 export function pillIdle(recorded) { if (!M.laya) setPill(recorded ? "replay" : "", recorded ? "기록된 결과 · 모델을 로드하면 직접 실행할 수 있습니다" : "모델이 로드되지 않았습니다"); }
 
-// ---- PWA 설치 상태 진단 (헤더 버튼은 두지 않는다 — 매 페이지 반복은 번잡) -------------------------
-// 설치가 안 되는 원인을 화면에서 바로 볼 수 있게: 하단(.foot)에 조건 검사 한 줄.
-(function pwaDiag() {
-  const mark = (ok) => ok ? "✓" : "✗";
-  const run = async () => {
-    const foot = document.querySelector(".foot");
-    if (!foot) return;
-    const parts = [];
-    parts.push(`HTTPS ${mark(window.isSecureContext)}`);
-    let sw = "✗";
-    try {
-      const reg = await navigator.serviceWorker?.getRegistration?.();
-      sw = mark(!!reg);
-      if (reg) sw += reg.active && navigator.serviceWorker.controller ? "(컨트롤 중✓)" : "(등록만, 새로고침 필요)";
-    } catch { }
-    parts.push(`서비스워커 ${sw}`);
-    try {
-      const r = await fetch("./manifest.webmanifest", { cache: "no-store" });
-      const m = await r.json();
-      parts.push(`manifest ${mark(r.ok)} · ${m.short_name}`);
-      const ic = (m.icons || []).find((i) => /512/.test(i.sizes) && !/maskable/.test(i.purpose || ""));
-      const decodable = ic && await new Promise((res) => {
-        const img = new Image();
-        img.onload = () => res(img.naturalWidth === 512);
-        img.onerror = () => res(false);
-        img.src = ic.src;
-      });
-      parts.push(`아이콘512 ${mark(decodable)}`);
-      const standalone = window.matchMedia?.("(display-mode: standalone)").matches;
-      if (!standalone) {
-        const iOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-        parts.push(iOS ? "설치: 사파리 공유→'홈 화면에 추가'" : "설치: ⋮ 메뉴→'앱 설치'/'홈 화면에 추가'");
-      } else parts.push("독립 앱 모드");
-    } catch (e) {
-      parts.push(`manifest 읽기 실패 (${e?.message || e})`);
-    }
-    const div = document.createElement("div");
-    div.className = "pwa-diag";
-    div.textContent = "🔧 PWA 진단: " + parts.join(" · ");
-    foot.appendChild(div);
-  };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run); else run();
-})();
-
 export async function initModelCard() {
   $("loadBtn").addEventListener("click", loadModels);
   $("embedLink").href = EMBED_MODEL.page; $("embedLink").textContent = EMBED_MODEL.id;
