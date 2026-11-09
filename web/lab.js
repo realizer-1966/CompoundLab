@@ -27,7 +27,9 @@ function run() {
       S.lab = runLab($("text").value, qe, { L: S.L, budget: S.budget, evalSplit: $("evalSplit").value });
       settings.set("labL", S.L); settings.set("labBudget", S.budget); settings.set("labSplit", $("evalSplit").value);
       const missingNote = S.lab.missing.length ? ` · ⚠ 미발견 근거 ${S.lab.missing.length}개: ${S.lab.missing.map((m) => `“${m.slice(0, 20)}…”`).join(", ")}` : "";
-      done(`✔ 완료 (${(performance.now() - t0).toFixed(0)} ms, 빌드 ${LAB_BUILD}) — 문서 ${S.lab.doc.C.length}자 · 단위 ${S.lab.doc.units.length}개 · provision ${S.lab.doc.provisions.length}개 · 청킹 전략 5종 점수판이 아래에 그려졌습니다${missingNote}.`);
+      // done() 전에 render: 렌더 오류 catch가 메시지를 뒤집을 수 있으므로, 성공 시점 순서는 render → done → 스크롤
+      render();
+      done(`✔ 완료 (${(performance.now() - t0).toFixed(0)} ms, 빌드 ${LAB_BUILD}) — 문서 ${S.lab.doc.C.length}자 · 단위 ${S.lab.doc.units.length}개 · provision ${S.lab.doc.provisions.length}개 · 청킹 전략 5종 점수판이 그려졌습니다${missingNote}.`);
       $("scoreboardWrap").scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (e) {
       console.error(e);
