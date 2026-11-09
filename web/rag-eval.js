@@ -75,9 +75,22 @@ function withPrev(run, prev) {
 
 async function runEval() {
   if (S.running || S.compareRunning) return;
-  if (!M.laya) { $("runHint").textContent = "먼저 모델을 로드하세요 (위의 버튼). 기록된 실행 결과는 '저장된 실행 결과' 아래 목록에 있습니다."; return; }  const r = rag(), presetId = $("preset").value, subset = $("subset").value;
+  if (!M.laya) { $("runHint").textContent = "먼저 모델을 로드하세요 (위의 버튼). 기록된 실행 결과는 '저장된 실행 결과' 아래 목록에 있습니다."; return; }
+  // 코퍼스가 아직 로드 전(페이지 로드 직후 클릭)이면 subsetClaims가 조용히 예외를 던져 버튼이 죽은 것처럼 보인다 — 로드 or 안내
+  if (!S.corpus) {
+    try {
+      $("runHint").textContent = "코퍼스를 불러오는 중…";
+      S.corpus = await loadCorpus();
+      $("fDataset").innerHTML = `<option value="">전체 데이터셋</option>` + Object.entries(S.corpus.datasets).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+    } catch (e) {
+      console.error(e); $("runHint").textContent = "코퍼스를 불러오지 못했습니다: " + (e?.message || e) + " — 다시 눌러보세요."; return;
+    }
+  }
+  const r = rag(), presetId = $("preset").value, subset = $("subset").value;
   const key = runKey({ modelVariant: M.model.variant, presetId, rag: r });
-  const claims = subsetClaims(subset);
+  let claims;
+  try { claims = subsetClaims(subset); }
+  catch (e) { console.error(e); $("runHint").textContent = "샘플을 구성하지 못했습니다: " + (e?.message || e); return; }
   // Resume: reuse any claim already judged under exactly this configuration (browser-made runs only).
   const prev = S.runs.get(key);
   const have = new Map(prev && prev.source !== "recorded" ? prev.records.map((x) => [x.id, x]) : []);
