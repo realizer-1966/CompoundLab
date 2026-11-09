@@ -168,7 +168,12 @@
 window.__diagLog = [];
 window.__diag = (...a) => {
   window.__diagLog.push(`${new Date().toTimeString().slice(0, 8)}  ` + a.map((x) => typeof x === "string" ? x : JSON.stringify(x)).join(" "));
-  const b = document.getElementById("diag");
+  let b = document.getElementById("diag");
+  if (!b && document.body) { // 패널 박스가 없으면 직접 만든다 (이전 배포에서 누락됐던 부분)
+    b = document.createElement("div");
+    b.id = "diag";
+    document.body.appendChild(b);
+  }
   if (b) b.textContent = window.__diagLog.slice(-10).join("\n");
 };
 window.addEventListener("error", (e) => window.__diag("✖ 오류: " + (e.message || e.type) + (e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "")));
