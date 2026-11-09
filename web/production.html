@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로덕션 Lab — 바뀌는 문서, 정렬되는 인덱스</title>
+<meta name="description" content="1일차를 지나면: 벡터 인덱스를 바뀌는 문서에 맞춰두는 일의 9개 장애 모드를 시뮬레이션합니다. 각 장애는 fix 없이/fix와 함께 두 번 실행되고, 카오스 위크는 켠 fix에 따라 채점합니다. 임베딩은 feature-hash 벡터라 모델 다운로드가 없습니다.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="./coi.js"></script>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" class="logo-bg"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <h1>프로덕션 Lab</h1>
+      <p>1일차를 지나면: 바뀌는 문서와 벡터 인덱스의 9개 장애 모드</p>
+    </div>
+  </div>
+  <div class="topright">
+    <nav class="nav" aria-label="페이지"><a href="./index.html">주장 검증</a><a href="./rag-eval.html">평가</a><a href="./router.html">라우터</a><a href="./chat.html">질의응답</a><a href="./lab.html">청킹 Lab</a><a href="./production.html" aria-current="page">프로덕션</a></nav>
+    <div class="modelpill" role="status"><span class="dot"></span>모델 불필요 · 결정적 시뮬레이션</div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <section class="card">
+      <h2>카오스 위크</h2>
+      <p class="hint">한 주의 프로덕션(편집, 크래시, 배포, 모델 업그레이드, 이벤트 소실, 캐시 부패)을 시뮬레이션하고, 켠 fix에 따라 채점합니다.</p>
+      <div class="field" style="display:grid;gap:4px;font-size:13.5px" id="fixes">
+        <label class="check"><input type="checkbox" id="fx-docIds" value="docIds"> 문서 ID (rung 1)</label>
+        <label class="check"><input type="checkbox" id="fx-hashing" value="hashing"> 콘텐츠 해시 (rung 2)</label>
+        <label class="check"><input type="checkbox" id="fx-stable" value="stable"> 안정 청킹 (rung 3)</label>
+        <label class="check"><input type="checkbox" id="fx-versioning" value="versioning"> 문서 버저닝 (rung 4)</label>
+        <label class="check"><input type="checkbox" id="fx-atomic" value="atomic"> 원자적 전환 (rung 5)</label>
+        <label class="check"><input type="checkbox" id="fx-gc" value="gc"> 가비지 컬렉션 (rung 6)</label>
+        <label class="check"><input type="checkbox" id="fx-embedVersion" value="embedVersion"> 임베딩 버저닝 (rung 7)</label>
+        <label class="check"><input type="checkbox" id="fx-reconcile" value="reconcile"> 재조정 스윕 (rung 8)</label>
+        <label class="check"><input type="checkbox" id="fx-cache" value="cache"> 버전 인식 캐시 (rung 9)</label>
+      </div>
+      <div class="btnrow"><button id="chaosBtn" class="primary">카오스 위크 실행</button></div>
+      <div id="chaosOut"></div>
+      <p class="hint">fix 의존성: 원자 전환은 버저닝을, GC는 버저닝을, 안정 청킹은 해싱을, 해싱은 문서 ID를 요구합니다.</p>
+    </section>
+  </aside>
+
+  <main class="main">
+    <section class="card">
+      <div class="toolbar"><h2 style="margin:0">9개 장애 모드</h2><span class="caption" id="prodMeta"></span></div>
+      <div class="tablewrap" id="rungs"></div>
+      <p class="caption">계획된 인젝션: 한국어 가상 "직원 규정" 1부 + 단문 KB 36개, 40% 예산의 문서 세트. 각 rung는 같은 조작을 fix 없이/fix와 함께 두 번 실행해 차이를 보여줍니다. 임베딩은 feature-hash 벡터(v1/v2 시드)라 두 "모델"의 벡터 공간이 실제로 호환되지 않습니다 — 모델 다운로드도 서버도 없습니다.</p>
+    </section>
+
+    <section class="card" id="detailCard" hidden>
+      <div class="toolbar"><h2 id="detailTitle" style="margin:0"></h2></div>
+      <div id="detail"></div>
+      <details><summary>엔진 출력 (JSON)</summary><pre id="detailJson" style="white-space:pre-wrap;font-size:11.5px"></pre></details>
+    </section>
+  </main>
+</div>
+
+<footer class="foot">
+  프로덕션 Lab · 결정적 시뮬레이션, 모델 다운로드 없음 · 원본: advancedRagDemo (영어) · 이 포트의 코퍼스는 가상의 한국어 "직원 규정"이며 내용은 모두 지어낸 것입니다.
+</footer>
+<script type="module" src="./production.js"></script>
+</body>
+</html>

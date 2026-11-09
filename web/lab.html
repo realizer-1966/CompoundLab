@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>청킹 Lab — 최신 RAG 청킹 연구 비교</title>
+<meta name="description" content="같은 문서, 같은 검색기, 같은 컨텍스트 예산에서 다섯 가지 청킹 전략(고정 윈도/문장 윈도/구조 인식/QES×2)을 완전 근거 회수(complete-evidence recall)로 비교합니다. 청크 그래프(SpectRAG-lite)와 flat top-k도 나란히. 모델 다운로드 없이 즉시 실행됩니다.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="./coi.js"></script>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" class="logo-bg"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <h1>청킹 Lab</h1>
+      <p>2026년 후반 RAG 청킹 연구를 같은 문서·검색기·예산에서 비교합니다</p>
+    </div>
+  </div>
+  <div class="topright">
+    <nav class="nav" aria-label="페이지"><a href="./index.html">주장 검증</a><a href="./rag-eval.html">평가</a><a href="./router.html">라우터</a><a href="./chat.html">질의응답</a><a href="./lab.html" aria-current="page">청킹 Lab</a></nav>
+    <div class="modelpill" role="status"><span class="dot"></span>모델 불필요 · 순수 계산</div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <section class="card">
+      <h2>문서 (마크다운)</h2>
+      <div class="field">
+        <textarea id="text" rows="12" spellcheck="false"></textarea>
+        <p class="hint">## 장 · ### n.n 조 (provision) · 본문의 "n.n절" 상호 참조를 구조 인식 전략이 해결합니다.</p>
+      </div>
+      <div class="field">
+        <label for="qe">질문–근거 쌍 (JSON: q · evidence · split)</label>
+        <textarea id="qe" rows="6" spellcheck="false"></textarea>
+      </div>
+      <div class="row3">
+        <div class="field"><label for="L">최대 청크 길이 <b id="LVal">160</b></label><input type="range" id="L" min="80" max="500" step="20" value="160"></div>
+        <div class="field"><label for="budget">컨텍스트 예산 <b id="budgetVal">30</b> 단어</label><input type="range" id="budget" min="10" max="120" step="5" value="30"></div>
+        <div class="field"><label for="evalSplit">평가 분할</label><select id="evalSplit"><option value="test">test 질문만</option><option value="all">전체 질문</option></select></div>
+      </div>
+      <div class="btnrow"><button id="runBtn" class="primary">실행 (모델 없이)</button></div>
+      <p class="hint" id="runHint">제공된 한국어 샘플이 기본입니다. 자신의 마크다운과 질문–근거 JSON을 붙여넣어도 됩니다. 근거는 문서의 그대로(verbatim) 문자열이어야 합니다.</p>
+    </section>
+  </aside>
+
+  <main class="main">
+    <section class="card" id="scoreboardWrap">
+      <div class="toolbar"><h2 style="margin:0">점수판 · 완전 근거 회수</h2><span class="caption" id="labMeta"></span></div>
+      <div class="tablewrap" id="scoreboard"></div>
+      <p class="caption">부분 회수 = 근거 일부만 컨텍스트에 들어옴 · 완전 회수 = 질문에 필요한 근거가 <b>전부</b> 들어옴 (arXiv 2610.26951). flat = BM25 top-k · graph = 청크 그래프 + 개인화 PageRank (SpectRAG-lite, arXiv 2610.36991). 이웃 청크로 퍼져 있는 근거를 "필요한 전부"로 모으는 게 그래프 모드의 목적입니다.</p>
+    </section>
+
+    <section class="two">
+      <div class="card"><h2>완전 회수 대 예산</h2><div id="curve"></div><p class="caption">컨텍스트 예산을 키워가며 완전 회수가 어떻게 오르는지.</p></div>
+      <div class="card"><h2>청크 경계 지도</h2><div id="boundaries"></div><p class="caption">가로줄 하나 = 청크 하나 (문서 오프셋 순). 청회색 = 제목 경계에 닿음. 구조 인식이 provision을 깨뜨리지 않는 걸 눈으로 볼 수 있습니다.</p></div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar"><h2 style="margin:0">질문 인스펙터</h2>
+        <div class="filters"><select id="qsel" aria-label="질문"></select><select id="gsel2" aria-label="모드"><option value="flat">flat</option><option value="graph">graph</option></select></div>
+      </div>
+      <div id="inspector"></div>
+      <p class="caption">선택한 질문에서 각 전략이 뭘 집어 컨텍스트에 넣었는지. ✓는 찾은 근거, ✗는 놓친 근거.</p>
+    </section>
+  </main>
+</div>
+
+<footer class="foot">
+  청킹 Lab · 순수 계산, 모델 다운로드 없음 · StrucChunk <a href="https://arxiv.org/abs/2610.26313" target="_blank" rel="noopener">2610.26313</a> · QESChunker <a href="https://arxiv.org/abs/2610.36557" target="_blank" rel="noopener">2610.36557</a> · SpectRAG-lite <a href="https://arxiv.org/abs/2610.36991" target="_blank" rel="noopener">2610.36991</a> · 한국어 대응은 이 저장소의 rag.js terms() (문자 2-gram)
+</footer>
+<script type="module" src="./lab.js"></script>
+</body>
+</html>
