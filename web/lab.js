@@ -5,25 +5,39 @@ import { LAB_TEXT, LAB_QE } from "./policyCorpus.js";
 
 const S = { lab: null, L: settings.get("labL", 160), budget: settings.get("labBudget", 30), evalSplit: settings.get("labSplit", "test"), qi: 0, mode: settings.get("labMode", "flat") };
 
+// 실행마다 표시되는 빌드 식별자: "옛 코드가 캐시되었나"를 아는 열쇠 (coi-sw 캐시 세대와 함께 본다)
+const LAB_BUILD = "2026-11-09.2";
+
 const pct = (p) => (p * 100).toFixed(0) + "%";
 
 // ---- 실행 -------------------------------------------------------------------------
 
 function run() {
-  let qe;
-  try { qe = JSON.parse($("qe").value); }
-  catch (e) { $("runHint").textContent = "질문 JSON을 읽지 못했습니다: " + e.message; return; }
-  if (!Array.isArray(qe) || !qe.length) { $("runHint").textContent = "질문–근거 JSON은 [{q, evidence:[...], split}] 배열이어야 합니다."; return; }
-  try {
-    S.lab = runLab($("text").value, qe, { L: S.L, budget: S.budget, evalSplit: $("evalSplit").value });
-    settings.set("labL", S.L); settings.set("labBudget", S.budget); settings.set("labSplit", $("evalSplit").value);
-    $("runHint").textContent = `완료 — 문서 ${S.lab.doc.C.length}자 · 단위 ${S.lab.doc.units.length}개 · provision ${S.lab.doc.provisions.length}개 · 근거 ${S.lab.evSet.flatMap((q) => q.ev).length}개 중 미발견 ${S.lab.missing.length}개.`;
-    if (S.lab.missing.length) $("runHint").textContent += ` 찾지 못한 근거: ${S.lab.missing.map((m) => `“${m.slice(0, 24)}…”`).join(", ")}`;
-    render();
-  } catch (e) {
-    console.error(e);
-    $("runHint").textContent = "실행 실패: " + (e?.message || e);
-  }
+  ("__labBuild" in window) || (window.__labBuild = LAB_BUILD);
+  console.info(`[청킹 Lab] 빌드 ${LAB_BUILD} · SW 캐시 세대 coi-sw.js의 VERSION 확인`);
+  $("runBtn").disabled = true; $("runBtn").textContent = "계산 중…";
+  // runLab은 동기 계산이라 setTimeout으로 한 프레임 내여서 버튼 상태가 일단 그려진다
+  setTimeout(() => {
+    const t0 = performance.now();
+    let qe;
+    try { qe = JSON.parse($("qe").value); }
+    catch (e) { done(`질문 JSON을 읽지 못했습니다: ${e.message}`); return; }
+    if (!Array.isArray(qe) || !qe.length) { done("질문–근거 JSON은 [{q, evidence:[...], split}] 배열이어야 합니다."); return; }
+    try {
+      S.lab = runLab($("text").value, qe, { L: S.L, budget: S.budget, evalSplit: $("evalSplit").value });
+      settings.set("labL", S.L); settings.set("labBudget", S.budget); settings.set("labSplit", $("evalSplit").value);
+      const missingNote = S.lab.missing.length ? ` · ⚠ 미발견 근거 ${S.lab.missing.length}개: ${S.lab.missing.map((m) => `“${m.slice(0, 20)}…”`).join(", ")}` : "";
+      done(`✔ 완료 (${(performance.now() - t0).toFixed(0)} ms, 빌드 ${LAB_BUILD}) — 문서 ${S.lab.doc.C.length}자 · 단위 ${S.lab.doc.units.length}개 · provision ${S.lab.doc.provisions.length}개 · 청킹 전략 5종 점수판이 아래에 그려졌습니다${missingNote}.`);
+    } catch (e) {
+      console.error(e);
+      done(`✖ 실행 실패 (${(performance.now() - t0).toFixed(0)} ms, 빌드 ${LAB_BUILD}): ` + (e?.message || e));
+    }
+  }, 10);
+}
+
+function done(msg) {
+  $("runHint").textContent = msg;
+  $("runBtn").disabled = false; $("runBtn").textContent = "실행 (모델 없이)";
 }
 
 // ---- 렌더 -------------------------------------------------------------------------
