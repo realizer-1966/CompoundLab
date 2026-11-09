@@ -1,6 +1,6 @@
 // "청킹 Lab" 페이지: runLab()을 돌리고 점수판·예산 곡선·경계 지도·질문 인스펙터를 그린다. 모든 계산은 로컬, 순수.
 import { $, esc, settings } from "./common.js";
-import { runLab, STRATEGIES } from "./chunkLab.js";
+import { runLab, STRATEGIES, retrieve } from "./chunkLab.js";
 import { LAB_TEXT, LAB_QE } from "./policyCorpus.js";
 
 const S = { lab: null, L: settings.get("labL", 160), budget: settings.get("labBudget", 30), evalSplit: settings.get("labSplit", "test"), qi: 0, mode: settings.get("labMode", "flat") };
@@ -105,7 +105,8 @@ function renderInspector() {
   const q = lab.evSet[S.qi] || lab.evSet[0]; if (!q) { $("inspector").innerHTML = ""; return }
   let html = `<table class="grid"><thead><tr><th>전략 / 모드</th><th>집어 넣은 청크</th><th>근거</th></tr></thead><tbody>`;
   for (const s of STRATEGIES) {
-    const q2 = lab.results[s.key].perQ.find((x) => x.qi === q.qi);
+    // perQ는 evSet과 같은 순서다 (chunkLab.evaluateStrategy는 qi를 붙이지 않는다)
+    const q2 = lab.results[s.key].perQ[S.qi];
     if (!q2) continue;
     for (const mode of ["flat", "graph"]) {
       const r = q2[mode];
