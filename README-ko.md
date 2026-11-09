@@ -155,7 +155,7 @@ ollama pull clef:latest       # 또는 로컬 설치 (약 18–20 GB, 전송 없
 3. **Chrome 내부망 접근 차단(Private Network Access)**: 공개 https 페이지 → 기기 내부의 Ollama 호출은 최신 Chrome이 막을 수 있다. 그 경우:
    - 같은 기기에서 `http://localhost:8769`(로컬 서버)로 열면 로컬↔로컬이라 막히지 않거나,
    - 브라우저 Laya ONNX 판별기(기본값)를 쓴다 — 외부 연결이 전혀 필요 없다.
-4. `?clefBase=http://<서버주소>:11434` URL 파라미터로 판별 서버 주소를 바꿀 수 있다.
+4. **GitHub Pages에서 Ollama 판별 쓰기 (Chrome 내부망 차단 우회)**: 로컬 서버(`python serve.py 8769`)의 `/ollama` 프록시가 preflight에 `Access-Control-Allow-Private-Network: true`로 응답해 허용된다. 모델 카드의 "Ollama 서버 주소"에 `http://localhost:8769/ollama` 입력(한 번 저장) → Clef 호출이 로컬 서버 → 기기 Ollama로 전달된다. URL 파라미터 `?clefBase=...`도 같은 역할.
 
 ## 샘플 코퍼스
 

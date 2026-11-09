@@ -65,12 +65,15 @@ export async function initModelCard() {
     const clef = $("jsel").value === "clef";
     $("variantField").hidden = clef; $("backendField").hidden = clef; $("clefField").hidden = !clef;
     $("clefModel").value = settings.get("clefModel", CLEF_DEFAULT_MODEL);
+    $("clefBaseField").hidden = !clef; // 와 함께 표시
     settings.set("jsel", $("jsel").value);
     const link = $("modelLink");
     if (clef) { link.href = CLEF_PAGE; link.textContent = "Ollama Clef"; }
   };
   $("jsel").value = settings.get("jsel", "browser");
   applyJs();
+  $("clefBase").value = settings.get("clefBase", "http://localhost:11434");
+  $("clefBase").addEventListener("change", () => { settings.set("clefBase", $("clefBase").value.trim() || "http://localhost:11434"); $("loadBtn").disabled = false; });
   $("jsel").addEventListener("change", () => { applyJs(); $("loadBtn").disabled = false; });
   try {
     const m = await modelApi();

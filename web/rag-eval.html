@@ -52,6 +52,10 @@
       <label for="clefModel">Clef 모델 (Ollama)</label>
       <input id="clefModel" value="clef:cloud" spellcheck="false">
     </div>
+    <div class="field" id="clefBaseField" hidden>
+      <label for="clefBase">Ollama 서버 주소</label>
+      <input id="clefBase" value="http://localhost:11434" spellcheck="false">
+    </div>
     <button id="loadBtn" class="primary" disabled>모델 로드</button>
   </div>
   <div class="progress" id="progress" hidden><div id="progressBar"></div></div>
